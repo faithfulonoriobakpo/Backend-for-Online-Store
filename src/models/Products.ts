@@ -3,7 +3,7 @@ import Client from '../database';
 type Response = {
     status: number;
     message: string;
-    data?:string | number
+    data?:string | number | product
 };
 
 type product = {
@@ -37,13 +37,24 @@ class Product {
         }
     }
 
-    public async show(index: number): Promise<product> {
+    public async show(index: number): Promise<Response> {
         try {
             const conn = await Client.connect();
             const query = 'SELECT * FROM products WHERE id=$1';
             const result = await conn.query(query, [index]);
             conn.release();
-            return result.rows[0];
+            if (result.rows.length) {
+                return {
+                    status: 200,
+                    message: "product retrieved successfully",
+                    data: result.rows[0]
+                }
+            } else {
+                return {
+                    status: 400,
+                    message: 'No product found for index given'
+                };
+            }
         } catch (e) {
             throw Error('Could not find product');
         }

@@ -95,7 +95,20 @@ var Product = /** @class */ (function () {
                     case 2:
                         result = _a.sent();
                         conn.release();
-                        return [2 /*return*/, result.rows[0]];
+                        if (result.rows.length) {
+                            return [2 /*return*/, {
+                                    status: 200,
+                                    message: "product retrieved successfully",
+                                    data: result.rows[0]
+                                }];
+                        }
+                        else {
+                            return [2 /*return*/, {
+                                    status: 400,
+                                    message: 'No product found for index given'
+                                }];
+                        }
+                        return [3 /*break*/, 4];
                     case 3:
                         e_2 = _a.sent();
                         throw Error('Could not find product');
