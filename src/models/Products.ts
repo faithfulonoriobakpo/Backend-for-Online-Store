@@ -3,7 +3,7 @@ import Client from '../database';
 type Response = {
     status: number;
     message: string;
-    data?:string | number | product
+    data?:string | number | product | product[]
 };
 
 type product = {
@@ -17,8 +17,8 @@ class Product {
     public async index(name: string): Promise<Response> {
         try {
             const conn = await Client.connect();
-            const query = 'SELECT id FROM products WHERE name=$1';
-            const result = await conn.query(query, [name]);
+            const query = 'SELECT id FROM products WHERE LOWER(name)=$1';
+            const result = await conn.query(query, [name.toLowerCase()]);
             conn.release();
             if (result.rows.length) {
                 return {
@@ -107,7 +107,7 @@ class Product {
         try {
             const conn = await Client.connect();
             const query = `SELECT * FROM products ORDER BY orders_count DESC LIMIT 5`;
-            const result = await conn.query(query, []);
+            const result = await conn.query(query);
             conn.release();
             return result.rows;
         } catch (e) {
