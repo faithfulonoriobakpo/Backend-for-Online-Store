@@ -100,4 +100,51 @@ productRoute.get('/show/:index', function (req, res) { return __awaiter(void 0, 
         }
     });
 }); });
+productRoute.post('/create', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var product, product_instance, response, e_3;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 4, , 5]);
+                if (!(req.body.name && req.body.price && req.body.category)) return [3 /*break*/, 2];
+                product = {
+                    name: req.body.name,
+                    price: Number(req.body.price),
+                    category: req.body.category
+                };
+                if (isNaN(product.price))
+                    throw new TypeError("Price must be a number");
+                product_instance = new Products_1["default"]();
+                return [4 /*yield*/, product_instance.create(product)];
+            case 1:
+                response = _b.sent();
+                res.status(response.status).json(response);
+                return [3 /*break*/, 3];
+            case 2:
+                res.status(400).json({
+                    status: 400,
+                    message: "name, price and category cannot be empty"
+                });
+                _b.label = 3;
+            case 3: return [3 /*break*/, 5];
+            case 4:
+                e_3 = _b.sent();
+                if (e_3 instanceof TypeError) {
+                    res.status(400).json({
+                        status: 400,
+                        message: e_3.message
+                    });
+                }
+                else if (e_3 instanceof Error) {
+                    res.json({
+                        status: 500,
+                        message: (_a = e_3.message) !== null && _a !== void 0 ? _a : "Something went wrong internally"
+                    });
+                }
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
+        }
+    });
+}); });
 exports["default"] = productRoute;

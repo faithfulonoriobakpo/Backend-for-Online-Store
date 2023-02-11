@@ -127,20 +127,33 @@ var Product = /** @class */ (function () {
                         return [4 /*yield*/, database_1["default"].connect()];
                     case 1:
                         conn = _a.sent();
-                        query = 'INSERT INTO products(id,name,price,category) VALUES($1,$2,$3,$4)';
+                        query = 'INSERT INTO products(name,price,category,orders_count) VALUES($1,$2,$3,$4) RETURNING id';
                         return [4 /*yield*/, conn.query(query, [
-                                product.id,
                                 product.name,
                                 product.price,
-                                product.category
+                                product.category,
+                                0
                             ])];
                     case 2:
                         result = _a.sent();
                         conn.release();
+                        if (result.rows.length) {
+                            return [2 /*return*/, {
+                                    status: 200,
+                                    message: "product created successfully",
+                                    data: result.rows[0]
+                                }];
+                        }
+                        else {
+                            return [2 /*return*/, {
+                                    status: 500,
+                                    message: 'Could not create product'
+                                }];
+                        }
                         return [3 /*break*/, 4];
                     case 3:
                         e_3 = _a.sent();
-                        throw Error('Could not create product');
+                        throw new Error('Could not created product');
                     case 4: return [2 /*return*/];
                 }
             });

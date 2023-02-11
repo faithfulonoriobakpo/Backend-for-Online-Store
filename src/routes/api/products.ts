@@ -39,4 +39,37 @@ productRoute.get('/show/:index', async (req:Request, res:Response) => {
     }
 })
 
+productRoute.post('/create', async (req:Request, res:Response) => {
+    try{
+        if(req.body.name && req.body.price && req.body.category){
+            const product = {
+                name: req.body.name,
+                price: Number(req.body.price),
+                category:req.body.category
+            };
+            if(isNaN(product.price)) throw new TypeError("Price must be a number");
+            const product_instance = new Product();
+            const response = await product_instance.create(product);
+            res.status(response.status).json(response);
+        }else{
+            res.status(400).json({
+                status: 400,
+                message: "name, price and category cannot be empty"
+            });
+        }
+    }catch(e){
+        if(e instanceof TypeError){
+            res.status(400).json({
+                status:400,
+                message: e.message
+            });
+        }else if(e instanceof Error){
+            res.json({
+                status:500,
+                message:e.message ?? "Something went wrong internally"
+            })
+        }
+    }
+});
+
 export default productRoute;

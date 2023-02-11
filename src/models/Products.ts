@@ -7,7 +7,7 @@ type Response = {
 };
 
 type product = {
-    id: number;
+    id?: number;
     name: string;
     price: number;
     category: string;
@@ -60,20 +60,32 @@ class Product {
         }
     }
 
-    public async create(product: product): Promise<void> {
+    public async create(product: product): Promise<Response> {
         try {
             const conn = await Client.connect();
             const query =
-                'INSERT INTO products(id,name,price,category) VALUES($1,$2,$3,$4)';
+                'INSERT INTO products(name,price,category,orders_count) VALUES($1,$2,$3,$4) RETURNING id';
             const result = await conn.query(query, [
-                product.id,
                 product.name,
                 product.price,
-                product.category
+                product.category,
+                0
             ]);
             conn.release();
+            if (result.rows.length) {
+                return {
+                    status: 200,
+                    message: "product created successfully",
+                    data: result.rows[0]
+                }
+            } else {
+                return {
+                    status: 500,
+                    message: 'Could not create product'
+                };
+            }
         } catch (e) {
-            throw Error('Could not create product');
+            throw new Error('Could not created product');
         }
     }
 
