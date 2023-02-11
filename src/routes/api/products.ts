@@ -72,4 +72,20 @@ productRoute.post('/create', async (req:Request, res:Response) => {
     }
 });
 
+productRoute.get('/products/category', async (req:Request, res:Response) => {
+    try{
+        const category:string = req.query.category as string;
+        const product_instance = new Product();
+        const result = await product_instance.show_products_by_category(category);
+        res.status(result.status).json(result);
+    }catch(e){
+        if(e instanceof Error){
+            res.json({
+                status:500,
+                message:e.message ?? "Something went wrong internally"
+            })
+        }
+    }
+})
+
 export default productRoute;

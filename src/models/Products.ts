@@ -91,25 +91,47 @@ class Product {
 
     public async show_products_by_category(
         category: string
-    ): Promise<product[]> {
+    ): Promise<Response> {
         try {
             const conn = await Client.connect();
-            const query = 'SELECT * FROM products WHERE category = $1';
-            const result = await conn.query(query, [category]);
+            const query = 'SELECT * FROM products WHERE LOWER(category) = $1';
+            const result = await conn.query(query, [category.toLowerCase()]);
             conn.release();
-            return result.rows;
+            if (result.rows.length) {
+                return {
+                    status: 200,
+                    message: "products retrieved successfully",
+                    data: result.rows
+                }
+            } else {
+                return {
+                    status: 400,
+                    message: 'product category not found'
+                };
+            }
         } catch (e) {
             throw Error('Could not get category products');
         }
     }
 
-    public async most_popular_products(): Promise<product[]> {
+    public async most_popular_products(): Promise<Response> {
         try {
             const conn = await Client.connect();
             const query = `SELECT * FROM products ORDER BY orders_count DESC LIMIT 5`;
             const result = await conn.query(query);
             conn.release();
-            return result.rows;
+            if (result.rows.length) {
+                return {
+                    status: 200,
+                    message: "products retrieved successfully",
+                    data: result.rows
+                }
+            } else {
+                return {
+                    status: 500,
+                    message: 'Something went wrong internally'
+                };
+            }
         } catch (e) {
             throw Error('Could not get popular products');
         }
