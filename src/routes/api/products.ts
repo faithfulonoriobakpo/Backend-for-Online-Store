@@ -72,7 +72,7 @@ productRoute.post('/create', async (req:Request, res:Response) => {
     }
 });
 
-productRoute.get('/products/category', async (req:Request, res:Response) => {
+productRoute.get('/category', async (req:Request, res:Response) => {
     try{
         const category:string = req.query.category as string;
         const product_instance = new Product();
@@ -88,7 +88,7 @@ productRoute.get('/products/category', async (req:Request, res:Response) => {
     }
 })
 
-productRoute.get('/products/popular', async (req:Request, res:Response) => {
+productRoute.get('/popular', async (req:Request, res:Response) => {
     try{
         const product_instance = new Product();
         const result = await product_instance.most_popular_products();

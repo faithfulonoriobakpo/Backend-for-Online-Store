@@ -78,3 +78,5 @@ userRouter.post('/create', async (req:Request, res:Response) => {
         }
     }
 })
+
+export default userRouter;

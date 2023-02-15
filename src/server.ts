@@ -7,6 +7,6 @@ const address: string = '127.0.0.1:3000';
 
 app.use(bodyParser.json());
 
-app.use('/', routes);
+app.use('/api', routes);
 
 app.listen(3000, () => console.log(`starting app on: ${address}`));

@@ -174,4 +174,30 @@ productRoute.get('/products/category', function (req, res) { return __awaiter(vo
         }
     });
 }); });
+productRoute.get('/products/popular', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var product_instance, result, e_5;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                product_instance = new Products_1["default"]();
+                return [4 /*yield*/, product_instance.most_popular_products()];
+            case 1:
+                result = _b.sent();
+                res.status(result.status).json(result);
+                return [3 /*break*/, 3];
+            case 2:
+                e_5 = _b.sent();
+                if (e_5 instanceof Error) {
+                    res.json({
+                        status: 500,
+                        message: (_a = e_5.message) !== null && _a !== void 0 ? _a : "Something went wrong internally"
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 exports["default"] = productRoute;
