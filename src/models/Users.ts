@@ -32,7 +32,7 @@ class User {
         }
     }
 
-    public async create(user:user): Promise<number>{
+    public async create(user:user): Promise<{"id":number}>{
         try{
             const conn = await Client.connect();
             const query = "INSERT INTO users(firstname, lastname, password) VALUES($1,$2,$3) RETURNING id";
