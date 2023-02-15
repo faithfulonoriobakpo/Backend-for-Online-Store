@@ -147,7 +147,7 @@ productRoute.post('/create', function (req, res) { return __awaiter(void 0, void
         }
     });
 }); });
-productRoute.get('/products/category', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+productRoute.get('/category', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var category, product_instance, result, e_4;
     var _a;
     return __generator(this, function (_b) {
@@ -174,7 +174,7 @@ productRoute.get('/products/category', function (req, res) { return __awaiter(vo
         }
     });
 }); });
-productRoute.get('/products/popular', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+productRoute.get('/popular', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var product_instance, result, e_5;
     var _a;
     return __generator(this, function (_b) {

@@ -9,5 +9,5 @@ var routes_1 = __importDefault(require("./routes"));
 var app = (0, express_1["default"])();
 var address = '127.0.0.1:3000';
 app.use(body_parser_1["default"].json());
-app.use('/', routes_1["default"]);
+app.use('/api', routes_1["default"]);
 app.listen(3000, function () { return console.log("starting app on: ".concat(address)); });

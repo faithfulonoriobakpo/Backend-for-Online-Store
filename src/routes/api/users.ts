@@ -25,11 +25,11 @@ userRouter.get('/index', async (req:Request, res:Response) => {
 });
 
 
-userRouter.get('/show', async (req:Request, res:Response) => {
+userRouter.get('/show/:id', async (req:Request, res:Response) => {
     try{
         const userInstance = new User();
         const userId = Number(req.params.id);
-        if(isNaN(userId)) throw new TypeError("User Id cannot be a number and not null.");
+        if(isNaN(userId)) throw new TypeError("User Id must be a number and cannot null.");
         const user = await userInstance.show(userId);
         if(user){
             res.status(200).json({
