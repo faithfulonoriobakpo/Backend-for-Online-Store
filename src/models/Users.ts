@@ -1,0 +1,48 @@
+import Client from "../database";
+
+type user = {
+    id?:number
+    firstname:string,
+    lastname:string,
+    password?:string
+}
+
+class User {
+    public async index(): Promise<user[]> {
+        try{
+            const conn = await Client.connect();
+            const query = "SELECT id, firstname, lastname FROM users";
+            const result = await conn.query(query);
+            conn.release();
+            return result.rows;
+        }catch(e){
+            throw new Error("Could not get index");
+        }
+    }
+
+    public async show(userid:number): Promise<user>{
+        try{
+            const conn = await Client.connect();
+            const query = "SELECT id, firstname, lastname FROM users WHERE id=$1";
+            const result = await conn.query(query, [userid]);
+            conn.release();
+            return result.rows[0];
+        }catch(e){
+            throw new Error("Could not get user");
+        }
+    }
+
+    public async create(user:user): Promise<number>{
+        try{
+            const conn = await Client.connect();
+            const query = "INSERT INTO users(firstname, lastname, password) VALUES($1,$2,$3) RETURNING id";
+            const result = await conn.query(query, [user.firstname, user.lastname, user.password]);
+            conn.release();
+            return result.rows[0];
+        }catch(e){
+            throw new Error("Could create user");
+        }
+    }
+}
+
+export default User;
