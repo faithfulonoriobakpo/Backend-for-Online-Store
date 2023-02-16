@@ -1,5 +1,6 @@
 import express, {Request, Response} from "express";
 import User from "../../models/Users";
+import bcrypt from "bcrypt";
 
 const userRouter = express.Router();
 
@@ -56,7 +57,9 @@ userRouter.post('/create', async (req:Request, res:Response) => {
     try{
         const {firstname,lastname,password} = req.body;
         if(!(firstname && lastname && password)) throw new TypeError("firstname, lastname and password must be provided");
-        const user = {"firstname":firstname,"lastname":lastname,"password":password};
+        const saltRounds = Number(process.env.SALT_ROUND);
+        const hashedPassword = bcrypt.hashSync(password, saltRounds);
+        const user = {"firstname":firstname,"lastname":lastname,"password":hashedPassword};
         const userInstance = new User();
         const result = await userInstance.create(user);
         if(result){

@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var Users_1 = __importDefault(require("../../models/Users"));
+var bcrypt_1 = __importDefault(require("bcrypt"));
 var userRouter = express_1["default"].Router();
 userRouter.get('/index', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userInstance, usersIndex, e_1;
@@ -117,7 +118,7 @@ userRouter.get('/show/:id', function (req, res) { return __awaiter(void 0, void 
     });
 }); });
 userRouter.post('/create', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, firstname, lastname, password, user, userInstance, result, e_3;
+    var _a, firstname, lastname, password, saltRounds, hashedPassword, user, userInstance, result, e_3;
     var _b, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
@@ -126,7 +127,9 @@ userRouter.post('/create', function (req, res) { return __awaiter(void 0, void 0
                 _a = req.body, firstname = _a.firstname, lastname = _a.lastname, password = _a.password;
                 if (!(firstname && lastname && password))
                     throw new TypeError("firstname, lastname and password must be provided");
-                user = { "firstname": firstname, "lastname": lastname, "password": password };
+                saltRounds = Number(process.env.SALT_ROUND);
+                hashedPassword = bcrypt_1["default"].hashSync(password, saltRounds);
+                user = { "firstname": firstname, "lastname": lastname, "password": hashedPassword };
                 userInstance = new Users_1["default"]();
                 return [4 /*yield*/, userInstance.create(user)];
             case 1:

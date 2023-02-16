@@ -109,7 +109,7 @@ var User = /** @class */ (function () {
                         return [2 /*return*/, result.rows[0]];
                     case 3:
                         e_3 = _a.sent();
-                        throw new Error("Could create user");
+                        throw new Error("Could not create user");
                     case 4: return [2 /*return*/];
                 }
             });

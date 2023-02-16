@@ -40,7 +40,7 @@ class User {
             conn.release();
             return result.rows[0];
         }catch(e){
-            throw new Error("Could create user");
+            throw new Error("Could not create user");
         }
     }
 }
