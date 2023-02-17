@@ -21,11 +21,11 @@ class Order{
         }
     }
 
-    public async completeOrder(order:order): Promise<order>{
+    public async completeOrder(orderId:number): Promise<order>{
         try{
             const conn = await Client.connect();
             const query = "UPDATE orders SET status=completed WHERE id=$1 RETURNING *";
-            const completedorder = await conn.query(query, [order.id]);
+            const completedorder = await conn.query(query, [orderId]);
             conn.release();
             return completedorder.rows[0];
         }catch(e){
