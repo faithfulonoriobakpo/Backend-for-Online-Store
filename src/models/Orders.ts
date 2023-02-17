@@ -21,9 +21,21 @@ class Order{
         }
     }
 
-    public async completeOrder(orderId:number): Promise<order>{
+    public async completeOrder(orderId:number): Promise<order|null>{
         try{
             const conn = await Client.connect();
+            const checkQuery = "SELECT status FROM orders WHERE id=$1";
+            const result = await conn.query(checkQuery, [orderId]);
+            const status = result.rows[0];
+            if(status){
+                if(status != 'active'){
+                    conn.release();
+                    throw new Error("order is no longer active!");
+                }
+            }else{
+                conn.release();
+                throw new Error("could not find order");
+            }
             const query = "UPDATE orders SET status='completed' WHERE id=$1 RETURNING *";
             const completedorder = await conn.query(query, [orderId]);
             conn.release();
@@ -36,7 +48,19 @@ class Order{
     public async cancelOrder(orderId:number): Promise<order>{
         try{
             const conn = await Client.connect();
-            const query = "UPDATE orders SET status='canceled' WHERE id=$1 RETURNING *";
+            const checkQuery = "SELECT status FROM orders WHERE id=$1";
+            const result = await conn.query(checkQuery, [orderId]);
+            const status = result.rows[0];
+            if(status){
+                if(status != 'active'){
+                    conn.release();
+                    throw new Error("order is no longer active!");
+                }
+            }else{
+                conn.release();
+                throw new Error("could not find order");
+            }
+            const query = "UPDATE orders SET status='canceled' WHERE id=$1 AND status='active' RETURNING *";
             const canceledorder = await conn.query(query, [orderId]);
             conn.release();
             return canceledorder.rows[0];
