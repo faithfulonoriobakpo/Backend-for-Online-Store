@@ -68,50 +68,92 @@ var Order = /** @class */ (function () {
             });
         });
     };
-    Order.prototype.completeOrder = function (order) {
+    Order.prototype.completeOrder = function (orderId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, query, completedorder, e_2;
+            var conn, checkQuery, result, status_1, query, completedorder, e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _a.trys.push([0, 4, , 5]);
                         return [4 /*yield*/, database_1["default"].connect()];
                     case 1:
                         conn = _a.sent();
-                        query = "UPDATE orders SET status=completed WHERE id=$1 RETURNING *";
-                        return [4 /*yield*/, conn.query(query, [order.id])];
+                        checkQuery = "SELECT status FROM orders WHERE id=$1";
+                        return [4 /*yield*/, conn.query(checkQuery, [orderId])];
                     case 2:
+                        result = _a.sent();
+                        status_1 = result.rows[0];
+                        if (status_1) {
+                            if (status_1 != 'active') {
+                                conn.release();
+                                throw new Error("order is no longer active!");
+                            }
+                        }
+                        else {
+                            conn.release();
+                            throw new Error("could not find order");
+                        }
+                        query = "UPDATE orders SET status='completed' WHERE id=$1 RETURNING *";
+                        return [4 /*yield*/, conn.query(query, [orderId])];
+                    case 3:
                         completedorder = _a.sent();
                         conn.release();
                         return [2 /*return*/, completedorder.rows[0]];
-                    case 3:
+                    case 4:
                         e_2 = _a.sent();
-                        throw new Error("Could not complete order");
-                    case 4: return [2 /*return*/];
+                        if (e_2 instanceof Error) {
+                            throw new Error(e_2.message);
+                        }
+                        else {
+                            throw new Error("Unxpected Error " + e_2);
+                        }
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
-    Order.prototype.cancelOrder = function (order) {
+    Order.prototype.cancelOrder = function (orderId) {
         return __awaiter(this, void 0, void 0, function () {
-            var conn, query, canceledorder, e_3;
+            var conn, checkQuery, result, status_2, query, canceledorder, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 3, , 4]);
+                        _a.trys.push([0, 4, , 5]);
                         return [4 /*yield*/, database_1["default"].connect()];
                     case 1:
                         conn = _a.sent();
-                        query = "UPDATE orders SET status=canceled WHERE id=$1 RETURNING *";
-                        return [4 /*yield*/, conn.query(query, [order.id])];
+                        checkQuery = "SELECT status FROM orders WHERE id=$1";
+                        return [4 /*yield*/, conn.query(checkQuery, [orderId])];
                     case 2:
+                        result = _a.sent();
+                        status_2 = result.rows[0];
+                        if (status_2) {
+                            if (status_2 != 'active') {
+                                conn.release();
+                                throw new Error("order is no longer active!");
+                            }
+                        }
+                        else {
+                            conn.release();
+                            throw new Error("could not find order");
+                        }
+                        query = "UPDATE orders SET status='canceled' WHERE id=$1 AND status='active' RETURNING *";
+                        return [4 /*yield*/, conn.query(query, [orderId])];
+                    case 3:
                         canceledorder = _a.sent();
                         conn.release();
                         return [2 /*return*/, canceledorder.rows[0]];
-                    case 3:
+                    case 4:
                         e_3 = _a.sent();
-                        throw new Error("Could not cancel order");
-                    case 4: return [2 /*return*/];
+                        if (e_3 instanceof Error) {
+                            throw new Error(e_3.message);
+                        }
+                        else {
+                            throw new Error("Unxpected Error " + e_3);
+                        }
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/];
                 }
             });
         });

@@ -34,7 +34,7 @@ orderRouter.post('/complete/:orderId', async (req:Request,res:Response) => {
         });
     }catch(e){
         if(e instanceof Error){
-            res.json({error: "Could not complete order:" + e.message});
+            res.json({error: e.message ?? "Could not complete order:"});
         }
     }
 });
@@ -51,7 +51,7 @@ orderRouter.post('/cancel/:orderId', async (req:Request,res:Response) => {
         });
     }catch(e){
         if(e instanceof Error){
-            res.json({error: "Could not cancel order:" + e.message});
+            res.json({error: e.message ?? "Could not complete order:"});
         }
     }
 });

@@ -41,7 +41,11 @@ class Order{
             conn.release();
             return completedorder.rows[0];
         }catch(e){
-            throw new Error("Could not complete order");
+            if(e instanceof Error){
+                throw new Error(e.message);
+            }else{
+                throw new Error("Unxpected Error " + e);
+            }
         }
     }
 
@@ -65,7 +69,11 @@ class Order{
             conn.release();
             return canceledorder.rows[0];
         }catch(e){
-            throw new Error("Could not cancel order");
+            if(e instanceof Error){
+                throw new Error(e.message);
+            }else{
+                throw new Error("Unxpected Error " + e);
+            }
         }
     }
 

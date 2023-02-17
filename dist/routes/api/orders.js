@@ -50,13 +50,13 @@ orderRouter.post('/create', function (req, res) { return __awaiter(void 0, void 
                 _a.trys.push([0, 2, , 3]);
                 order = req.body.order;
                 if (!(order.id && order.id_of_products && order.quantity_of_each_product && order.user_id)) {
-                    throw new Error("Any order field cannot be empty or null");
+                    throw new Error("All parameters must have valid values");
                 }
                 orderInstance = new Orders_1.Order();
                 return [4 /*yield*/, orderInstance.createOrder(order)];
             case 1:
                 createdOrder = _a.sent();
-                res.json({
+                res.status(200).json({
                     message: "order created successfully",
                     data: createdOrder
                 });
@@ -65,6 +65,64 @@ orderRouter.post('/create', function (req, res) { return __awaiter(void 0, void 
                 e_1 = _a.sent();
                 if (e_1 instanceof Error) {
                     res.json({ error: "Could not create order:" + e_1.message });
+                }
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+orderRouter.post('/complete/:orderId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var orderId, orderInstance, completedOrder, e_2;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                orderId = Number(req.params.orderId);
+                if (!(orderId && !isNaN(orderId)))
+                    throw new Error("orderId must be a number and cannot be null");
+                orderInstance = new Orders_1.Order();
+                return [4 /*yield*/, orderInstance.completeOrder(orderId)];
+            case 1:
+                completedOrder = _b.sent();
+                res.status(200).json({
+                    message: "order completed successfully",
+                    data: completedOrder
+                });
+                return [3 /*break*/, 3];
+            case 2:
+                e_2 = _b.sent();
+                if (e_2 instanceof Error) {
+                    res.json({ error: (_a = e_2.message) !== null && _a !== void 0 ? _a : "Could not complete order:" });
+                }
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+orderRouter.post('/cancel/:orderId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var orderId, orderInstance, canceledOrder, e_3;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                orderId = Number(req.params.orderId);
+                if (!(orderId && !isNaN(orderId)))
+                    throw new Error("orderId must be a number and cannot be null");
+                orderInstance = new Orders_1.Order();
+                return [4 /*yield*/, orderInstance.cancelOrder(orderId)];
+            case 1:
+                canceledOrder = _b.sent();
+                res.status(200).json({
+                    message: "order completed successfully",
+                    data: canceledOrder
+                });
+                return [3 /*break*/, 3];
+            case 2:
+                e_3 = _b.sent();
+                if (e_3 instanceof Error) {
+                    res.json({ error: (_a = e_3.message) !== null && _a !== void 0 ? _a : "Could not complete order:" });
                 }
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
