@@ -33,11 +33,11 @@ class Order{
         }
     }
 
-    public async cancelOrder(order:order): Promise<order>{
+    public async cancelOrder(orderId:number): Promise<order>{
         try{
             const conn = await Client.connect();
-            const query = "UPDATE orders SET status=canceled WHERE id=$1 RETURNING *";
-            const canceledorder = await conn.query(query, [order.id]);
+            const query = "UPDATE orders SET status='canceled' WHERE id=$1 RETURNING *";
+            const canceledorder = await conn.query(query, [orderId]);
             conn.release();
             return canceledorder.rows[0];
         }catch(e){
