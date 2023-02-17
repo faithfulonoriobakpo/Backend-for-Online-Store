@@ -24,7 +24,7 @@ class Order{
     public async completeOrder(orderId:number): Promise<order>{
         try{
             const conn = await Client.connect();
-            const query = "UPDATE orders SET status=completed WHERE id=$1 RETURNING *";
+            const query = "UPDATE orders SET status='completed' WHERE id=$1 RETURNING *";
             const completedorder = await conn.query(query, [orderId]);
             conn.release();
             return completedorder.rows[0];
