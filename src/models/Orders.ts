@@ -5,7 +5,7 @@ type order = {
     id_of_products: number[],
     quantity_of_each_product: number[],
     user_id: number,
-    status:string
+    status?:string
 };
 
 class Order{
@@ -82,4 +82,4 @@ class Order{
     }
 }
 
-export default Order;
+export {order, Order};
