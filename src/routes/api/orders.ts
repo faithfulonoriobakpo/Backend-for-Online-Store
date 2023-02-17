@@ -11,13 +11,30 @@ orderRouter.post('/create', async (req:Request,res:Response) => {
         }
         const orderInstance = new Order();
         const createdOrder = await orderInstance.createOrder(order); 
-        res.json({
+        res.status(200).json({
             message:"order created successfully",
             data:createdOrder
         });
     }catch(e){
         if(e instanceof Error){
             res.json({error: "Could not create order:" + e.message});
+        }
+    }
+});
+
+orderRouter.post('/complete/:orderId', async (req:Request,res:Response) => {
+    try{
+        const orderId = Number(req.params.orderId);
+        if(!(orderId && !isNaN(orderId))) throw new Error("orderId must be a number and cannot be null");
+        const orderInstance = new Order();
+        const completedOrder = await orderInstance.completeOrder(orderId); 
+        res.status(200).json({
+            message:"order completed successfully",
+            data:completedOrder
+        });
+    }catch(e){
+        if(e instanceof Error){
+            res.json({error: "Could not complete order:" + e.message});
         }
     }
 });
