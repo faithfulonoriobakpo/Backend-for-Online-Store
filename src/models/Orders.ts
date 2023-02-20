@@ -21,7 +21,7 @@ class Order{
         }
     }
 
-    public async completeOrder(orderId:number): Promise<order|null>{
+    public async completeOrder(orderId:number): Promise<order>{
         try{
             const conn = await Client.connect();
             const checkQuery = "SELECT status FROM orders WHERE id=$1";
@@ -80,7 +80,7 @@ class Order{
     public async currentOrders(userId:number): Promise<order[]>{
         try{
             const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE id=$1 AND status=active";
+            const query = "SELECT * FROM orders WHERE user_id=$1 AND status=active";
             const currentorders = await conn.query(query, [userId]);
             conn.release();
             return currentorders.rows;
@@ -92,7 +92,7 @@ class Order{
     public async completedOrders(userId:number): Promise<order[]>{
         try{
             const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE id=$1 AND status=completed";
+            const query = "SELECT * FROM orders WHERE user_id=$1 AND status=completed";
             const completedorders = await conn.query(query, [userId]);
             conn.release();
             return completedorders.rows;
@@ -104,7 +104,7 @@ class Order{
     public async canceledOrders(userId:number): Promise<order[]> {
         try{
             const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE id=$1 AND status=canceled";
+            const query = "SELECT * FROM orders WHERE user_id=$1 AND status=canceled";
             const canceledorders = await conn.query(query, [userId]);
             conn.release();
             return canceledorders.rows;

@@ -56,4 +56,55 @@ orderRouter.post('/cancel/:orderId', async (req:Request,res:Response) => {
     }
 });
 
+orderRouter.get('/currentorders/:userId', async (req:Request, res:Response) => {
+    try{
+        const userId = Number(req.params.userId);
+        if(!(userId && !isNaN(userId))) throw new Error("userId must be a number and cannot be null");
+        const orderInstance = new Order();
+        const result = await orderInstance.currentOrders(userId);
+        res.status(200).json({
+            message: "current orders fetched successfully",
+            data: result
+        });
+    }catch(e){
+        if(e instanceof Error){
+            res.json({error: e.message ?? "Could not complete order:"});
+        }
+    }
+});
+
+orderRouter.get('/completedOrders/:userId', async (req:Request, res:Response) => {
+    try{
+        const userId = Number(req.params.userId);
+        if(!(userId && !isNaN(userId))) throw new Error("userId must be a number and cannot be null");
+        const orderInstance = new Order();
+        const result = await orderInstance.completedOrders(userId);
+        res.status(200).json({
+            message: "completed orders fetched successfully",
+            data: result
+        });
+    }catch(e){
+        if(e instanceof Error){
+            res.json({error: e.message ?? "Could not fecth complete order:"});
+        }
+    }
+});
+
+orderRouter.get('/canceledOrders/:userId', async (req:Request, res:Response) => {
+    try{
+        const userId = Number(req.params.userId);
+        if(!(userId && !isNaN(userId))) throw new Error("userId must be a number and cannot be null");
+        const orderInstance = new Order();
+        const result = await orderInstance.canceledOrders(userId);
+        res.status(200).json({
+            message: "canceled orders fetched successfully",
+            data: result
+        });
+    }catch(e){
+        if(e instanceof Error){
+            res.json({error: e.message ?? "Could not fetch canceled orde:"});
+        }
+    }
+});
+
 export default orderRouter;
