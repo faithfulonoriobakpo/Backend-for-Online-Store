@@ -22,7 +22,7 @@ orderRouter.post('/create', async (req:Request,res:Response) => {
     }
 });
 
-orderRouter.post('/complete/:orderId', async (req:Request,res:Response) => {
+orderRouter.put('/complete/:orderId', async (req:Request,res:Response) => {
     try{
         const orderId = Number(req.params.orderId);
         if(!(orderId && !isNaN(orderId))) throw new Error("orderId must be a number and cannot be null");
@@ -39,7 +39,7 @@ orderRouter.post('/complete/:orderId', async (req:Request,res:Response) => {
     }
 });
 
-orderRouter.post('/cancel/:orderId', async (req:Request,res:Response) => {
+orderRouter.put('/cancel/:orderId', async (req:Request,res:Response) => {
     try{
         const orderId = Number(req.params.orderId);
         if(!(orderId && !isNaN(orderId))) throw new Error("orderId must be a number and cannot be null");
