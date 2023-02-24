@@ -44,7 +44,7 @@ class User {
         }
     }
 
-    public async authenticate(userId:string): Promise<user> {
+    public async authenticate(userId:number): Promise<user> {
         try {
             const conn = await Client.connect();
             const query = 'SELECT * FROM users WHERE id = $1';
