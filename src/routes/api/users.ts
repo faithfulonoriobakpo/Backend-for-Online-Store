@@ -1,6 +1,7 @@
 import express, {Request, Response} from "express";
 import User from "../../models/Users";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const userRouter = express.Router();
 
@@ -81,5 +82,39 @@ userRouter.post('/create', async (req:Request, res:Response) => {
         }
     }
 })
+
+userRouter.post('/authenticate', async (req:Request,res:Response) => {
+    try{
+        const username:string = req.body.username;
+        const password:string = req.body.password;
+        if(username && password){
+            const userInstance = new User()
+            const user = await userInstance.authenticate(username);
+            const hashedPassword = user.password;
+            if(hashedPassword){
+                const token = jwt.sign({username:username}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+                bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)? 
+                    res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) : 
+                    res.status(400).json({status: 400, message: "Password is incorrect"});
+            }else{
+                res.status(404).json({
+                    "status":404,
+                    "message":"user not found"
+                });
+            }
+        }else{
+            res.status(400).json({
+                "status":400,
+                "message":"username and password cannot be empty"
+            });
+        }
+    }catch(e){
+        if(e instanceof Error){
+            e.message? res.send(e.message):res.send("An error occurred while getting token");
+        }else{
+            res.send("An error occurred while getting token");
+        }
+    }
+});
 
 export default userRouter;
