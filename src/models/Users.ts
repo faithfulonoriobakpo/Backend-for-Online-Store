@@ -43,6 +43,19 @@ class User {
             throw new Error("Could not create user");
         }
     }
+
+    public async authenticate(username:string): Promise<user> {
+        try {
+            const conn = await Client.connect();
+            const query = 'SELECT * FROM users WHERE LOWER(username) = $1';
+            const result = await conn.query(query, [username.toLowerCase()]);
+            conn.release();
+            return result.rows[0];
+
+        } catch(err){
+            throw new Error(`Could not fetch user: ${err}`);
+        }
+    }
 }
 
 export default User;
