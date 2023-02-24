@@ -92,7 +92,7 @@ userRouter.post('/authenticate', async (req:Request,res:Response) => {
             const userInstance = new User();
             const user = await userInstance.authenticate(userId);
             if(user){
-                const hashedPassword = user.password;
+                const hashedPassword:string = user.password as string;
                 const token = jwt.sign({userId:userId}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
                 bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)?
                     res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) :
