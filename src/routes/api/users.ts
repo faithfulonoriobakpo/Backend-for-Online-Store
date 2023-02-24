@@ -85,16 +85,16 @@ userRouter.post('/create', async (req:Request, res:Response) => {
 
 userRouter.post('/authenticate', async (req:Request,res:Response) => {
     try{
-        const username:string = req.body.username;
+        const userId:string = req.body.userId;
         const password:string = req.body.password;
-        if(username && password){
-            const userInstance = new User()
-            const user = await userInstance.authenticate(username);
+        if(userId && password){
+            const userInstance = new User();
+            const user = await userInstance.authenticate(userId);
             const hashedPassword = user.password;
             if(hashedPassword){
-                const token = jwt.sign({username:username}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
-                bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)? 
-                    res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) : 
+                const token = jwt.sign({userId:userId}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+                bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)?
+                    res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) :
                     res.status(400).json({status: 400, message: "Password is incorrect"});
             }else{
                 res.status(404).json({
