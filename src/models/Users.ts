@@ -44,11 +44,11 @@ class User {
         }
     }
 
-    public async authenticate(username:string): Promise<user> {
+    public async authenticate(userId:string): Promise<user> {
         try {
             const conn = await Client.connect();
             const query = 'SELECT * FROM users WHERE LOWER(username) = $1';
-            const result = await conn.query(query, [username.toLowerCase()]);
+            const result = await conn.query(query, [userId.toLowerCase()]);
             conn.release();
             return result.rows[0];
 
