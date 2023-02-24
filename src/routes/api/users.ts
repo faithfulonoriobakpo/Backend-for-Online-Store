@@ -105,7 +105,7 @@ userRouter.post('/authenticate', async (req:Request,res:Response) => {
         }else{
             res.status(400).json({
                 "status":400,
-                "message":"username and password cannot be empty"
+                "message":"userId and password cannot be empty"
             });
         }
     }catch(e){
