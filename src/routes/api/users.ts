@@ -85,13 +85,14 @@ userRouter.post('/create', async (req:Request, res:Response) => {
 
 userRouter.post('/authenticate', async (req:Request,res:Response) => {
     try{
-        const userId:string = req.body.userId;
+        const userId:number = req.body.userId as number;
+        if(isNaN(userId)) throw new TypeError("userId must be a number");
         const password:string = req.body.password;
         if(userId && password){
             const userInstance = new User();
             const user = await userInstance.authenticate(userId);
-            const hashedPassword = user.password;
-            if(hashedPassword){
+            if(user){
+                const hashedPassword = user.password;
                 const token = jwt.sign({userId:userId}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
                 bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)?
                     res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) :
@@ -110,9 +111,9 @@ userRouter.post('/authenticate', async (req:Request,res:Response) => {
         }
     }catch(e){
         if(e instanceof Error){
-            e.message? res.send(e.message):res.send("An error occurred while getting token");
+            e.message? res.json({error: e.message}):res.json({"error":"An error occurred while getting token"});
         }else{
-            res.send("An error occurred while getting token");
+            res.json({"error":"An error occurred while getting token"});
         }
     }
 });
