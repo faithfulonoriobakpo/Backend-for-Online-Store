@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import Product from '../../models/Products';
+import { authenticate } from '../../middlewares/auth';
 
 const productRoute = express.Router();
 
@@ -39,7 +40,7 @@ productRoute.get('/show/:index', async (req:Request, res:Response) => {
     }
 })
 
-productRoute.post('/create', async (req:Request, res:Response) => {
+productRoute.post('/create', authenticate, async (req:Request, res:Response) => {
     try{
         if(req.body.name && req.body.price && req.body.category){
             const product = {
