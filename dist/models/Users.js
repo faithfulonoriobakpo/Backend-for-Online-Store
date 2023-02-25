@@ -115,6 +115,30 @@ var User = /** @class */ (function () {
             });
         });
     };
+    User.prototype.authenticate = function (userId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var conn, query, result, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, database_1["default"].connect()];
+                    case 1:
+                        conn = _a.sent();
+                        query = 'SELECT * FROM users WHERE id = $1';
+                        return [4 /*yield*/, conn.query(query, [userId])];
+                    case 2:
+                        result = _a.sent();
+                        conn.release();
+                        return [2 /*return*/, result.rows[0]];
+                    case 3:
+                        err_1 = _a.sent();
+                        throw new Error("Could not fetch user: ".concat(err_1));
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return User;
 }());
 exports["default"] = User;

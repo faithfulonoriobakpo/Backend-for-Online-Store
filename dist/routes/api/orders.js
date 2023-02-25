@@ -41,8 +41,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var Orders_1 = require("../../models/Orders");
+var auth_1 = require("../../middlewares/auth");
 var orderRouter = express_1["default"].Router();
-orderRouter.post('/create', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+orderRouter.post('/create', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var order, orderInstance, createdOrder, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -71,7 +72,7 @@ orderRouter.post('/create', function (req, res) { return __awaiter(void 0, void 
         }
     });
 }); });
-orderRouter.post('/complete/:orderId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+orderRouter.put('/complete/:orderId', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var orderId, orderInstance, completedOrder, e_2;
     var _a;
     return __generator(this, function (_b) {
@@ -100,7 +101,7 @@ orderRouter.post('/complete/:orderId', function (req, res) { return __awaiter(vo
         }
     });
 }); });
-orderRouter.post('/cancel/:orderId', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+orderRouter.put('/cancel/:orderId', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var orderId, orderInstance, canceledOrder, e_3;
     var _a;
     return __generator(this, function (_b) {
@@ -129,5 +130,115 @@ orderRouter.post('/cancel/:orderId', function (req, res) { return __awaiter(void
         }
     });
 }); });
-orderRouter.get('/currentorders/:userId');
+orderRouter.get('/currentorders/:userId', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var userId, orderInstance, result, e_4;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                userId = Number(req.params.userId);
+                if (!(userId && !isNaN(userId)))
+                    throw new Error("userId must be a number and cannot be null");
+                orderInstance = new Orders_1.Order();
+                return [4 /*yield*/, orderInstance.currentOrders(userId)];
+            case 1:
+                result = _b.sent();
+                if (result.length > 0) {
+                    res.status(200).json({
+                        message: "current orders fetched successfully",
+                        data: result
+                    });
+                }
+                else {
+                    res.status(200).json({
+                        message: "no active order was found for user",
+                        data: result
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                e_4 = _b.sent();
+                if (e_4 instanceof Error) {
+                    res.json({ error: (_a = e_4.message) !== null && _a !== void 0 ? _a : "Could not complete order:" });
+                }
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+orderRouter.get('/completedOrders/:userId', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var userId, orderInstance, result, e_5;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                userId = Number(req.params.userId);
+                if (!(userId && !isNaN(userId)))
+                    throw new Error("userId must be a number and cannot be null");
+                orderInstance = new Orders_1.Order();
+                return [4 /*yield*/, orderInstance.completedOrders(userId)];
+            case 1:
+                result = _b.sent();
+                if (result.length > 0) {
+                    res.status(200).json({
+                        message: "completed orders fetched successfully",
+                        data: result
+                    });
+                }
+                else {
+                    res.status(200).json({
+                        message: "no completed order found for user",
+                        data: null
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                e_5 = _b.sent();
+                if (e_5 instanceof Error) {
+                    res.json({ error: (_a = e_5.message) !== null && _a !== void 0 ? _a : "Could not fecth complete order:" });
+                }
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+orderRouter.get('/canceledOrders/:userId', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var userId, orderInstance, result, e_6;
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                userId = Number(req.params.userId);
+                if (!(userId && !isNaN(userId)))
+                    throw new Error("userId must be a number and cannot be null");
+                orderInstance = new Orders_1.Order();
+                return [4 /*yield*/, orderInstance.canceledOrders(userId)];
+            case 1:
+                result = _b.sent();
+                if (result.length > 0) {
+                    res.status(200).json({
+                        message: "canceled orders fetched successfully",
+                        data: result
+                    });
+                }
+                else {
+                    res.status(200).json({
+                        message: "no canceled order found for user",
+                        data: null
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                e_6 = _b.sent();
+                if (e_6 instanceof Error) {
+                    res.json({ error: (_a = e_6.message) !== null && _a !== void 0 ? _a : "Could not fetch canceled orde:" });
+                }
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 exports["default"] = orderRouter;

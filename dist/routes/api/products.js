@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var Products_1 = __importDefault(require("../../models/Products"));
+var auth_1 = require("../../middlewares/auth");
 var productRoute = express_1["default"].Router();
 productRoute.get('/index/:productName', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var productName, product_instance, index, e_1;
@@ -100,7 +101,7 @@ productRoute.get('/show/:index', function (req, res) { return __awaiter(void 0, 
         }
     });
 }); });
-productRoute.post('/create', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+productRoute.post('/create', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var product, product_instance, response, e_3;
     var _a;
     return __generator(this, function (_b) {

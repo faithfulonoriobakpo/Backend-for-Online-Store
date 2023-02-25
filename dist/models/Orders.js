@@ -168,7 +168,7 @@ var Order = /** @class */ (function () {
                         return [4 /*yield*/, database_1["default"].connect()];
                     case 1:
                         conn = _a.sent();
-                        query = "SELECT * FROM orders WHERE user_id=$1 AND status=active";
+                        query = "SELECT * FROM orders WHERE user_id=$1 AND status='active'";
                         return [4 /*yield*/, conn.query(query, [userId])];
                     case 2:
                         currentorders = _a.sent();
@@ -192,7 +192,7 @@ var Order = /** @class */ (function () {
                         return [4 /*yield*/, database_1["default"].connect()];
                     case 1:
                         conn = _a.sent();
-                        query = "SELECT * FROM orders WHERE user_id=$1 AND status=completed";
+                        query = "SELECT * FROM orders WHERE user_id=$1 AND status='completed'";
                         return [4 /*yield*/, conn.query(query, [userId])];
                     case 2:
                         completedorders = _a.sent();
@@ -200,7 +200,13 @@ var Order = /** @class */ (function () {
                         return [2 /*return*/, completedorders.rows];
                     case 3:
                         e_5 = _a.sent();
-                        throw new Error("Could not get completed orders for user");
+                        if (e_5 instanceof Error) {
+                            throw new Error(e_5.message);
+                        }
+                        else {
+                            throw new Error("Could not get completed orders for user");
+                        }
+                        return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
             });
@@ -216,7 +222,7 @@ var Order = /** @class */ (function () {
                         return [4 /*yield*/, database_1["default"].connect()];
                     case 1:
                         conn = _a.sent();
-                        query = "SELECT * FROM orders WHERE user_id=$1 AND status=canceled";
+                        query = "SELECT * FROM orders WHERE user_id=$1 AND status='canceled'";
                         return [4 /*yield*/, conn.query(query, [userId])];
                     case 2:
                         canceledorders = _a.sent();

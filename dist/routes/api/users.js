@@ -42,8 +42,10 @@ exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
 var Users_1 = __importDefault(require("../../models/Users"));
 var bcrypt_1 = __importDefault(require("bcrypt"));
+var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var auth_1 = require("../../middlewares/auth");
 var userRouter = express_1["default"].Router();
-userRouter.get('/index', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+userRouter.get('/index', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userInstance, usersIndex, e_1;
     var _a;
     return __generator(this, function (_b) {
@@ -77,7 +79,7 @@ userRouter.get('/index', function (req, res) { return __awaiter(void 0, void 0, 
         }
     });
 }); });
-userRouter.get('/show/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+userRouter.get('/show/:id', auth_1.authenticate, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var userInstance, userId, user, e_2;
     var _a, _b;
     return __generator(this, function (_c) {
@@ -128,7 +130,7 @@ userRouter.post('/create', function (req, res) { return __awaiter(void 0, void 0
                 if (!(firstname && lastname && password))
                     throw new TypeError("firstname, lastname and password must be provided");
                 saltRounds = Number(process.env.SALT_ROUND);
-                hashedPassword = bcrypt_1["default"].hashSync(password, saltRounds);
+                hashedPassword = bcrypt_1["default"].hashSync(password + process.env.PEPPER, saltRounds);
                 user = { "firstname": firstname, "lastname": lastname, "password": hashedPassword };
                 userInstance = new Users_1["default"]();
                 return [4 /*yield*/, userInstance.create(user)];
@@ -157,6 +159,55 @@ userRouter.post('/create', function (req, res) { return __awaiter(void 0, void 0
                 }
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
+        }
+    });
+}); });
+userRouter.post('/authenticate', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var userId, password, userInstance, user, hashedPassword, token, e_4;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 4, , 5]);
+                userId = req.body.userId;
+                if (isNaN(userId))
+                    throw new TypeError("userId must be a number");
+                password = req.body.password;
+                if (!(userId && password)) return [3 /*break*/, 2];
+                userInstance = new Users_1["default"]();
+                return [4 /*yield*/, userInstance.authenticate(userId)];
+            case 1:
+                user = _a.sent();
+                if (user) {
+                    hashedPassword = user.password;
+                    token = jsonwebtoken_1["default"].sign({ userId: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                    bcrypt_1["default"].compareSync(password + process.env.PEPPER, hashedPassword) ?
+                        res.status(200).json({ status: 200, message: "User authenticated successfully", token: token }) :
+                        res.status(400).json({ status: 400, message: "Password is incorrect" });
+                }
+                else {
+                    res.status(404).json({
+                        "status": 404,
+                        "message": "user not found"
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                res.status(400).json({
+                    "status": 400,
+                    "message": "userId and password cannot be empty"
+                });
+                _a.label = 3;
+            case 3: return [3 /*break*/, 5];
+            case 4:
+                e_4 = _a.sent();
+                if (e_4 instanceof Error) {
+                    e_4.message ? res.json({ error: e_4.message }) : res.json({ "error": "An error occurred while getting token" });
+                }
+                else {
+                    res.json({ "error": "An error occurred while getting token" });
+                }
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
         }
     });
 }); });
