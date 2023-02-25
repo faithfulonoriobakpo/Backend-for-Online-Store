@@ -59,7 +59,7 @@ userRouter.post('/create', async (req:Request, res:Response) => {
         const {firstname,lastname,password} = req.body;
         if(!(firstname && lastname && password)) throw new TypeError("firstname, lastname and password must be provided");
         const saltRounds = Number(process.env.SALT_ROUND);
-        const hashedPassword = bcrypt.hashSync(password, saltRounds);
+        const hashedPassword = bcrypt.hashSync(password + process.env.PEPPER, saltRounds);
         const user = {"firstname":firstname,"lastname":lastname,"password":hashedPassword};
         const userInstance = new User();
         const result = await userInstance.create(user);
