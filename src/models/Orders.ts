@@ -92,12 +92,16 @@ class Order{
     public async completedOrders(userId:number): Promise<order[]>{
         try{
             const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE user_id=$1 AND status=completed";
+            const query = "SELECT * FROM orders WHERE user_id=$1 AND status='completed'";
             const completedorders = await conn.query(query, [userId]);
             conn.release();
             return completedorders.rows;
         }catch(e){
-            throw new Error("Could not get completed orders for user");
+            if(e instanceof Error){
+                throw new Error(e.message);
+            }else{
+                throw new Error("Could not get completed orders for user");
+            }
         }
     }
 
