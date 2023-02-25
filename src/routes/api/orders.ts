@@ -1,9 +1,10 @@
 import express, {Request, Response} from "express";
 import {order, Order} from "../../models/Orders";
+import { authenticate } from "../../middlewares/auth";
 
 const orderRouter = express.Router();
 
-orderRouter.post('/create', async (req:Request,res:Response) => {
+orderRouter.post('/create', authenticate, async (req:Request,res:Response) => {
     try{
         const order:order = req.body.order;
         if(!(order.id && order.id_of_products && order.quantity_of_each_product && order.user_id)){
@@ -22,7 +23,7 @@ orderRouter.post('/create', async (req:Request,res:Response) => {
     }
 });
 
-orderRouter.put('/complete/:orderId', async (req:Request,res:Response) => {
+orderRouter.put('/complete/:orderId', authenticate, async (req:Request,res:Response) => {
     try{
         const orderId = Number(req.params.orderId);
         if(!(orderId && !isNaN(orderId))) throw new Error("orderId must be a number and cannot be null");
@@ -39,7 +40,7 @@ orderRouter.put('/complete/:orderId', async (req:Request,res:Response) => {
     }
 });
 
-orderRouter.put('/cancel/:orderId', async (req:Request,res:Response) => {
+orderRouter.put('/cancel/:orderId', authenticate, async (req:Request,res:Response) => {
     try{
         const orderId = Number(req.params.orderId);
         if(!(orderId && !isNaN(orderId))) throw new Error("orderId must be a number and cannot be null");
@@ -56,16 +57,23 @@ orderRouter.put('/cancel/:orderId', async (req:Request,res:Response) => {
     }
 });
 
-orderRouter.get('/currentorders/:userId', async (req:Request, res:Response) => {
+orderRouter.get('/currentorders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
         if(!(userId && !isNaN(userId))) throw new Error("userId must be a number and cannot be null");
         const orderInstance = new Order();
         const result = await orderInstance.currentOrders(userId);
-        res.status(200).json({
-            message: "current orders fetched successfully",
-            data: result
-        });
+        if(result.length > 0){
+            res.status(200).json({
+                message: "current orders fetched successfully",
+                data: result
+            });
+        }else{
+            res.status(200).json({
+                message: "no active order was found for user",
+                data: result
+            });
+        }
     }catch(e){
         if(e instanceof Error){
             res.json({error: e.message ?? "Could not complete order:"});
@@ -73,16 +81,23 @@ orderRouter.get('/currentorders/:userId', async (req:Request, res:Response) => {
     }
 });
 
-orderRouter.get('/completedOrders/:userId', async (req:Request, res:Response) => {
+orderRouter.get('/completedOrders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
         if(!(userId && !isNaN(userId))) throw new Error("userId must be a number and cannot be null");
         const orderInstance = new Order();
         const result = await orderInstance.completedOrders(userId);
-        res.status(200).json({
-            message: "completed orders fetched successfully",
-            data: result
-        });
+        if(result.length > 0){
+            res.status(200).json({
+                message: "completed orders fetched successfully",
+                data: result
+            });
+        }else{
+            res.status(200).json({
+                message: "no completed order found for user",
+                data:null
+            });
+        }
     }catch(e){
         if(e instanceof Error){
             res.json({error: e.message ?? "Could not fecth complete order:"});
@@ -90,16 +105,23 @@ orderRouter.get('/completedOrders/:userId', async (req:Request, res:Response) =>
     }
 });
 
-orderRouter.get('/canceledOrders/:userId', async (req:Request, res:Response) => {
+orderRouter.get('/canceledOrders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
         if(!(userId && !isNaN(userId))) throw new Error("userId must be a number and cannot be null");
         const orderInstance = new Order();
         const result = await orderInstance.canceledOrders(userId);
-        res.status(200).json({
-            message: "canceled orders fetched successfully",
-            data: result
-        });
+        if(result.length > 0 ){
+            res.status(200).json({
+                message: "canceled orders fetched successfully",
+                data: result
+            });
+        }else{
+            res.status(200).json({
+                message: "no canceled order found for user",
+                data:null
+            });
+        }
     }catch(e){
         if(e instanceof Error){
             res.json({error: e.message ?? "Could not fetch canceled orde:"});
