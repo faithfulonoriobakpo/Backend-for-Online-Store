@@ -2,10 +2,11 @@ import express, {Request, Response} from "express";
 import User from "../../models/Users";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { authenticate } from "../../middlewares/auth";
 
 const userRouter = express.Router();
 
-userRouter.get('/index', async (req:Request, res:Response) => {
+userRouter.get('/index', authenticate, async (req:Request, res:Response) => {
     try{
         const userInstance = new User();
         const usersIndex = await userInstance.index();
@@ -27,7 +28,7 @@ userRouter.get('/index', async (req:Request, res:Response) => {
 });
 
 
-userRouter.get('/show/:id', async (req:Request, res:Response) => {
+userRouter.get('/show/:id', authenticate, async (req:Request, res:Response) => {
     try{
         const userInstance = new User();
         const userId = Number(req.params.id);
