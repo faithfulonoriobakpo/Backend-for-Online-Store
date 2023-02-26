@@ -55,7 +55,7 @@ userRouter.get('/show/:id', authenticate, async (req:Request, res:Response) => {
 });
 
 
-userRouter.post('/create', async (req:Request, res:Response) => {
+userRouter.post('/create', authenticate, async (req:Request, res:Response) => {
     try{
         const {firstname,lastname,password} = req.body;
         if(!(firstname && lastname && password)) throw new TypeError("firstname, lastname and password must be provided");
