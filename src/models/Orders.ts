@@ -13,7 +13,7 @@ class Order{
         try{
             const conn = await Client.connect();
             const query = "INSERT INTO orders(id_of_products,quantity_of_each_product,user_id,status) VALUES($1,$2,$3,$4,$5) RETURNING *";
-            const createdorder = await conn.query(query, [order.id,order.id_of_products,order.quantity_of_each_product,order.user_id,"active"]);
+            const createdorder = await conn.query(query, [order.id_of_products,order.quantity_of_each_product,order.user_id,"active"]);
             conn.release();
             return createdorder.rows[0];
         }catch(e){
