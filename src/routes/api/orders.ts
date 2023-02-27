@@ -14,11 +14,15 @@ orderRouter.post('/create', authenticate, async (req:Request,res:Response) => {
             throw new TypeError("user_id must be a number, id of products and quantity of products must be arrays");
         }
         const orderInstance = new Order();
-        const createdOrder = await orderInstance.createOrder(order); 
-        res.status(200).json({
-            message:"order created successfully",
-            data:createdOrder
-        });
+        const createdOrder = await orderInstance.createOrder(order);
+        if(createdOrder){
+            res.status(200).json({
+                message:"order created successfully",
+                data:createdOrder
+            });
+        }else{
+            throw new Error("could not create user");
+        }
     }catch(e){
         if(e instanceof TypeError){
             res.status(400).json({status:400, message: "Could not create order:" + e.message});
