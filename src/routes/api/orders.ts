@@ -7,7 +7,7 @@ const orderRouter = express.Router();
 orderRouter.post('/create', authenticate, async (req:Request,res:Response) => {
     try{
         const order:order = req.body.order;
-        if(!(order.id && order.id_of_products && order.quantity_of_each_product && order.user_id)){
+        if(!(order.id_of_products && order.quantity_of_each_product && order.user_id)){
             throw new Error("All parameters must have valid values");
         }
         const orderInstance = new Order();
