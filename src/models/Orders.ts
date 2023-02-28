@@ -12,12 +12,12 @@ class Order{
     public async createOrder(order:order): Promise<order>{
         try{
             const conn = await Client.connect();
-            const query = "INSERT INTO orders(id_of_products,quantity_of_each_product,user_id,status) VALUES($1,$2,$3,$4,$5) RETURNING *";
+            const query = "INSERT INTO orders(id_of_products,quantity_of_each_product,user_id,status) VALUES($1,$2,$3,$4) RETURNING *";
             const createdorder = await conn.query(query, [order.id_of_products,order.quantity_of_each_product,order.user_id,"active"]);
             conn.release();
             return createdorder.rows[0];
         }catch(e){
-            throw new Error("Could not create order");
+            throw new Error("Could not create order(dbError)");
         }
     }
 
@@ -26,7 +26,7 @@ class Order{
             const conn = await Client.connect();
             const checkQuery = "SELECT status FROM orders WHERE id=$1";
             const result = await conn.query(checkQuery, [orderId]);
-            const status = result.rows[0];
+            const status = result.rows[0].status;
             if(status){
                 if(status != 'active'){
                     conn.release();
@@ -54,7 +54,7 @@ class Order{
             const conn = await Client.connect();
             const checkQuery = "SELECT status FROM orders WHERE id=$1";
             const result = await conn.query(checkQuery, [orderId]);
-            const status = result.rows[0];
+            const status = result.rows[0].status;
             if(status){
                 if(status != 'active'){
                     conn.release();
