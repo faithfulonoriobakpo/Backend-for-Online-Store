@@ -7,7 +7,7 @@ const orderRouter = express.Router();
 orderRouter.post('/create', authenticate, async (req:Request,res:Response) => {
     try{
         const order:order = req.body.order;
-        if(!(order.id_of_products && order.quantity_of_each_product && order.user_id)){
+        if(!(order && order.id_of_products && order.quantity_of_each_product && order.user_id)){
             throw new TypeError("All parameters must have valid values");
         }
         if(!(Array.isArray(order.id_of_products) && Array.isArray(order.quantity_of_each_product) && Number.isInteger(order.user_id))){
@@ -25,7 +25,7 @@ orderRouter.post('/create', authenticate, async (req:Request,res:Response) => {
         }
     }catch(e){
         if(e instanceof TypeError){
-            res.status(400).json({status:400, message: "Could not create order:" + e.message});
+            res.status(400).json({status:400, message: e.message});
         }else if(e instanceof Error){
             res.json({message: e.message?? "Could not create order"});
         }
@@ -44,7 +44,7 @@ orderRouter.put('/complete/:orderId', authenticate, async (req:Request,res:Respo
         });
     }catch(e){
         if(e instanceof TypeError){
-            res.status(400).json({message:"Could not complete order:" + e.message});
+            res.status(400).json({message: e.message});
         }else if(e instanceof Error){
             res.json({message: e.message ?? "Could not complete order"});
         }
@@ -58,14 +58,14 @@ orderRouter.put('/cancel/:orderId', authenticate, async (req:Request,res:Respons
         const orderInstance = new Order();
         const canceledOrder = await orderInstance.cancelOrder(orderId); 
         res.status(200).json({
-            message:"order completed successfully",
+            message:"order canceled successfully",
             data:canceledOrder
         });
     }catch(e){
         if(e instanceof TypeError){
-            res.status(400).json({status:400, message: "Could not cancel order:" + e.message});
+            res.status(400).json({status:400, message: e.message});
         }else if(e instanceof Error){
-            res.json({message: "Could not cancel order:" + e.message});
+            res.json({message: e.message});
         }
     }
 });
@@ -89,14 +89,14 @@ orderRouter.get('/currentorders/:userId', authenticate, async (req:Request, res:
         }
     }catch(e){
         if(e instanceof TypeError){
-            res.status(400).json({status:400, message:e.message});
+            res.status(400).json({status:400, message: e.message});
         }else if(e instanceof Error){
             res.json({message: e.message ?? "Could not fetch current orders for user"});
         }
     }
 });
 
-orderRouter.get('/completedOrders/:userId', authenticate, async (req:Request, res:Response) => {
+orderRouter.get('/completedorders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
         if(!(userId && !isNaN(userId))) throw new TypeError("userId must be a number and cannot be null");
@@ -122,7 +122,7 @@ orderRouter.get('/completedOrders/:userId', authenticate, async (req:Request, re
     }
 });
 
-orderRouter.get('/canceledOrders/:userId', authenticate, async (req:Request, res:Response) => {
+orderRouter.get('/canceledorders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
         if(!(userId && !isNaN(userId))) throw new TypeError("userId must be a number and cannot be null");

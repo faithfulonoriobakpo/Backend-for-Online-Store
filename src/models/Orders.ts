@@ -30,7 +30,7 @@ class Order{
             if(status){
                 if(status != 'active'){
                     conn.release();
-                    throw new Error("order is no longer active!");
+                    throw new TypeError("order is no longer active!");
                 }
             }else{
                 conn.release();
@@ -41,8 +41,8 @@ class Order{
             conn.release();
             return completedorder.rows[0];
         }catch(e){
-            if(e instanceof Error){
-                throw new Error(e.message);
+            if(e instanceof TypeError){
+                throw new TypeError(e.message);
             }else{
                 throw new Error("Unxpected Error " + e);
             }
@@ -58,7 +58,7 @@ class Order{
             if(status){
                 if(status != 'active'){
                     conn.release();
-                    throw new Error("order is no longer active!");
+                    throw new TypeError("order is no longer active!");
                 }
             }else{
                 conn.release();
@@ -69,8 +69,8 @@ class Order{
             conn.release();
             return canceledorder.rows[0];
         }catch(e){
-            if(e instanceof Error){
-                throw new Error(e.message);
+            if(e instanceof TypeError){
+                throw new TypeError(e.message);
             }else{
                 throw new Error("Unxpected Error " + e);
             }
