@@ -13,31 +13,34 @@ describe("Test all order endpoints for correct data input", () => {
         token = res.body.token;
     });
 
-    it("Expect response message from create order to be 'order created successfully'", async () => {
-        const body = {
-            order:{
-                "id_of_products":[1,5,3],
-                "quantity_of_each_product":[20,5,5],
-                "user_id":5
-            }
-        };
-        const response = await request.post('/api/orders/create')
-                                .set('Authorization', `Bearer ${token}`)
-                                .send(body);
-        expect(response.body.message).toBe("order created successfully");
-        expect(response.status).toBe(200);
-        expect(response.body.data).toEqual(jasmine.objectContaining({
-            id:jasmine.any(Number),
-            id_of_products:jasmine.any(Array),
-            quantity_of_each_product:jasmine.any(Array),
-            user_id:jasmine.any(Number),
-            status:jasmine.any(String)
-        }));
-    });
+    //looped test 3 times because 3 order ids are needed
+    for(let i=0;i<3;i++){
+        it("Expect response message from create order to be 'order created successfully'", async () => {
+            const body = {
+                order:{
+                    "id_of_products":[1,5,3],
+                    "quantity_of_each_product":[20,5,5],
+                    "user_id":1
+                }
+            };
+            const response = await request.post('/api/orders/create')
+                                    .set('Authorization', `Bearer ${token}`)
+                                    .send(body);
+            expect(response.body.message).toBe("order created successfully");
+            expect(response.status).toBe(200);
+            expect(response.body.data).toEqual(jasmine.objectContaining({
+                id:jasmine.any(Number),
+                id_of_products:jasmine.any(Array),
+                quantity_of_each_product:jasmine.any(Array),
+                user_id:jasmine.any(Number),
+                status:jasmine.any(String)
+            }));
+        });
+    }
 
     //order for testing must have an active status
     it("Expect response message from complete order to be 'order completed successfully'", async () => {
-        const response = await request.put('/api/orders/complete/3')
+        const response = await request.put('/api/orders/complete/1')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toEqual(200);
         expect(response.body.message).toBe("order completed successfully");
@@ -52,7 +55,7 @@ describe("Test all order endpoints for correct data input", () => {
 
     //order for testing must have an active status
     it("Expect response message from cancel order to be 'order canceled successfully'", async () => {
-        const response = await request.put('/api/orders/cancel/4')
+        const response = await request.put('/api/orders/cancel/2')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toEqual(200);
         expect(response.body.message).toBe("order canceled successfully");
@@ -67,7 +70,7 @@ describe("Test all order endpoints for correct data input", () => {
 
     //user id for testing must have a current order to work
     it("Expect response message from current orders to be 'current orders fetched successfully'", async () => {
-        const response = await request.get('/api/orders/currentorders/5')
+        const response = await request.get('/api/orders/currentorders/1')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toEqual(200);
         expect(response.body.message).toBe("current orders fetched successfully");
@@ -82,7 +85,7 @@ describe("Test all order endpoints for correct data input", () => {
 
     //user id for testing must have a completed order to work
     it("Expect response message from completed orders to be 'completed orders fetched successfully'", async () => {
-        const response = await request.get('/api/orders/completedorders/3')
+        const response = await request.get('/api/orders/completedorders/1')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toEqual(200);
         expect(response.body.message).toBe("completed orders fetched successfully");
@@ -97,7 +100,7 @@ describe("Test all order endpoints for correct data input", () => {
 
     //user id for testing must have a canceled order to work
     it("Expect response message from canceled orders to be 'canceled orders fetched successfully'", async () => {
-        const response = await request.get('/api/orders/canceledorders/5')
+        const response = await request.get('/api/orders/canceledorders/1')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toEqual(200);
         expect(response.body.message).toBe("canceled orders fetched successfully");
@@ -173,7 +176,7 @@ describe("Test all order endpoints for error handling", async () => {
 
     //case where inactive order id is given for cancel order endpoint
     it("Expect response message from cancel order to be 'order is no longer active!'", async () => {
-        const response = await request.put('/api/orders/cancel/1')
+        const response = await request.put('/api/orders/cancel/2')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toEqual(400);
         expect(response.body.message).toBe("order is no longer active!");
