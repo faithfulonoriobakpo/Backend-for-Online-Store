@@ -7,7 +7,7 @@
     "start": "node src/server.ts",
     "build": "npx tsc",
     "watch": "tsc-watch --esModuleInterop src/server.ts --outDir ./dist --onSuccess \"node ./dist/server.js\"",
-    "test": "npm run build && jasmine",
+    "test": "npm run build && cross-env ENV=test jasmine",
     "tsc": "tsc",
     "prettier": "prettier --config .prettierrc.json 'src/**/*.ts' --write"
   },
@@ -36,6 +36,7 @@
     "@types/jasmine": "^4.3.1",
     "@types/jasminewd2": "^2.0.10",
     "@types/pg": "^7.14.7",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
     "prettier": "^2.8.4",
     "ts-node": "^8.10.2",
