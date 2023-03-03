@@ -186,7 +186,8 @@ Payload: {
           }
 ```
 - Top 5 most popular products
-``
+
+```
 Method: GET
 
 URL: /api/products/popular
@@ -194,7 +195,7 @@ URL: /api/products/popular
 ```
 - Products by category (args: product category)
 
-``
+```
 Method: GET
 
 URL: /api/products/category?category=provided category
