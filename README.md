@@ -201,3 +201,7 @@ Method: GET
 URL: /api/products/category?category=provided category
 
 ```
+
+## Testing
+
+- run 'npm run test'. This uses migrations to create tables for period of test and drop them after the tests.
