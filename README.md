@@ -46,4 +46,32 @@ To run this application, you to
 ```
   > Feel free to change SALT_ROUND, PEPPER, JWT_SECRET, AUTH_USERNAME=authtoken, AUTH_PASSWORD to values of your choice.
 
+- From a different terminal, run the command 'npm run watch' to run the application locally on 127.0.0.1:3000.
 
+
+## Available Endpoints
+
+The application has 3 routes: users, products and orders, with multiple endpoints. Some of these endpoints require authentication.
+All authentications use bearer token, which can be passed in the header, using authorization as key, or body or as a request param or in the request query using token as key. To generate token call the token endpoint.
+
+### Token Endpoint
+
+- /authentication/generatetoken
+
+``` 
+  Payload: {
+    "username":string,
+    "password":string
+  }
+
+  username and password are AUTH_USERNAME & AUTH_PASSWORD in .env file.
+
+  Response Sample: {
+    "message": "token generated successfully",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImF1dGh0b2tlbiIsImlhdCI6MTY3NzgwMzcxNCwiZXhwIjoxNjc3ODA3MzE0fQ.IJQ6U9KbFuVF4LgpAzolq39tGVKiNwGthMTkeg7ayIw"
+  }
+```
+
+### Users Endpoints
+
+- /api/users/create [POST]. Authentication Required.
