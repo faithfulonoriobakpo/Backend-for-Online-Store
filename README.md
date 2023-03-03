@@ -56,15 +56,17 @@ All authentications use bearer token, which can be passed in the header, using a
 
 ### Token Endpoint
 
-- **/authentication/generatetoken**
+- Token
 
 ``` 
   Method: POST
 
+  URL: authentication/generatetoken
+
   Payload: {
-    "username":string,
-    "password":string
-  }
+              "username":string,
+              "password":string
+            }
 
   username and password are AUTH_USERNAME & AUTH_PASSWORD in .env file.
 
@@ -76,10 +78,12 @@ All authentications use bearer token, which can be passed in the header, using a
 
 ### Users
 
-- Create [token required] **/api/users/create**
+- Create [token required]
 
 ```
   Method: POST
+
+  URL: /api/users/create
 
   Payload: {
               "firstname":string,
@@ -95,10 +99,12 @@ All authentications use bearer token, which can be passed in the header, using a
                     }
 ```
 
-- Index [token required] **/api/users/index**
+- Index [token required]
 
 ```
   Method: GET
+
+  URL: /api/users/index
 
   Response Sample: {
                       "message": "User created successfully",
@@ -112,10 +118,12 @@ All authentications use bearer token, which can be passed in the header, using a
                     }
 ```
 
-- Show [token required] **/api/users/show/:user_id**
+- Show [token required]
 
 ```
 Method: GET
+
+URL: /api/users/show/:user_id
 
 Response Sample: {
                     "message": "user retrieved successfully",
@@ -130,12 +138,65 @@ Response Sample: {
 #### Orders
 
 - Current Order by user (args: user id)[token required]
+
+```
+Method: GET
+
+URL: /api/orders/currentorders/:user_id
+
+```
 - Completed Orders by user (args: user id)[token required]
+
+```
+Method: GET
+
+URL: /api/orders/completedorders/:user_id
+
+```
 
 ### Products
 
 - Index
+
+```
+Method: GET
+
+URL: /api/products/index
+
+```
 - Show
+
+```
+Method: GET
+
+URL: /api/products/show/:product_id
+
+```
 - Create [token required]
-- [OPTIONAL] Top 5 most popular products
-- [OPTIONAL] Products by category (args: product category)
+
+```
+Method: POST
+
+URL: /api/products/create
+
+Payload: {
+            name:string,
+            price:integer,
+            category:string
+          }
+```
+- Top 5 most popular products
+``
+Method: GET
+
+URL: /api/products/popular
+
+```
+- Products by category (args: product category)
+
+``
+Method: GET
+
+URL: /api/products/category?category=provided category
+
+```
