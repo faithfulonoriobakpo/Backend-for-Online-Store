@@ -143,9 +143,9 @@ productRoute.get('/popular', async (req:Request, res:Response) => {
                 data: result
             });
         }else{
-            res.status(500).json({
-                status: 500,
-                message: 'Something went wrong internally'
+            res.status(404).json({
+                status: 404,
+                message: 'products not found'
             });
         }
     }catch(e){
