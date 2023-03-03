@@ -56,9 +56,11 @@ All authentications use bearer token, which can be passed in the header, using a
 
 ### Token Endpoint
 
-- /authentication/generatetoken
+- **/authentication/generatetoken**
 
 ``` 
+  Method: POST
+
   Payload: {
     "username":string,
     "password":string
@@ -67,11 +69,73 @@ All authentications use bearer token, which can be passed in the header, using a
   username and password are AUTH_USERNAME & AUTH_PASSWORD in .env file.
 
   Response Sample: {
-    "message": "token generated successfully",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImF1dGh0b2tlbiIsImlhdCI6MTY3NzgwMzcxNCwiZXhwIjoxNjc3ODA3MzE0fQ.IJQ6U9KbFuVF4LgpAzolq39tGVKiNwGthMTkeg7ayIw"
-  }
+                      "message": "token generated successfully",
+                      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImF1dGh0b2tlbiIsImlhdCI6MTY3NzgwMzcxNCwiZXhwIjoxNjc3ODA3MzE0fQ.IJQ6U9KbFuVF4LgpAzolq39tGVKiNwGthMTkeg7ayIw"
+                    }
 ```
 
-### Users Endpoints
+### Users
 
-- /api/users/create [POST]. Authentication Required.
+- Create [token required] **/api/users/create**
+
+```
+  Method: POST
+
+  Payload: {
+              "firstname":string,
+              "lastname":string,
+              "password":string
+            }
+
+  Response Sample: {
+                      "message": "User created successfully",
+                      "data": {
+                          "id":integer
+                      }
+                    }
+```
+
+- Index [token required] **/api/users/index**
+
+```
+  Method: GET
+
+  Response Sample: {
+                      "message": "User created successfully",
+                      "data":[
+                                {
+                                    "id": integer,
+                                    "firstname":string,
+                                    "lastname":string
+                                }
+                              ]
+                    }
+```
+
+- Show [token required] **/api/users/show/:user_id**
+
+```
+Method: GET
+
+Response Sample: {
+                    "message": "user retrieved successfully",
+                    "data": {
+                        "id":integer,
+                        "firstname":string,
+                        "lastname":string
+                    }
+                  }
+```
+
+#### Orders
+
+- Current Order by user (args: user id)[token required]
+- Completed Orders by user (args: user id)[token required]
+
+### Products
+
+- Index
+- Show
+- Create [token required]
+- [OPTIONAL] Top 5 most popular products
+- [OPTIONAL] Products by category (args: product category)
