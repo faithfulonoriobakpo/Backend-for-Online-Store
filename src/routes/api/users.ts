@@ -31,9 +31,9 @@ userRouter.get('/index', authenticate, async (req:Request, res:Response) => {
 userRouter.get('/show/:id', authenticate, async (req:Request, res:Response) => {
     try{
         const userInstance = new User();
-        const userId = Number(req.params.id);
-        if(isNaN(userId)) throw new TypeError("User Id must be a number and cannot null.");
-        const user = await userInstance.show(userId);
+        const user_id = Number(req.params.id);
+        if(isNaN(user_id)) throw new TypeError("User_id must be a number and cannot null.");
+        const user = await userInstance.show(user_id);
         if(user){
             res.status(200).json({
                 "message": "user retrieved successfully",
@@ -41,7 +41,7 @@ userRouter.get('/show/:id', authenticate, async (req:Request, res:Response) => {
             });
         }else{
             res.status(404).json({
-                "message":`user with id ${userId} does not exist`,
+                "message":`user with id ${user_id} does not exist`,
                 "data":null
             });
         }
@@ -55,7 +55,7 @@ userRouter.get('/show/:id', authenticate, async (req:Request, res:Response) => {
 });
 
 
-userRouter.post('/create', authenticate, async (req:Request, res:Response) => {
+userRouter.post('/create', async (req:Request, res:Response) => {
     try{
         const {firstname,lastname,password} = req.body;
         if(!(firstname && lastname && password)) throw new TypeError("firstname, lastname and password must be provided");
@@ -65,9 +65,11 @@ userRouter.post('/create', authenticate, async (req:Request, res:Response) => {
         const userInstance = new User();
         const result = await userInstance.create(user);
         if(result){
+            const token = jwt.sign({user_id:result.id}, process.env.JWT_SECRET as string, { expiresIn: '1h' })
             res.status(200).json({
                 "message":"User created successfully",
-                "data":result
+                "id":result.id,
+                "token":token
             });
         }else{
             res.json({
@@ -86,15 +88,15 @@ userRouter.post('/create', authenticate, async (req:Request, res:Response) => {
 
 userRouter.post('/authenticate', async (req:Request,res:Response) => {
     try{
-        const userId:number = req.body.userId as number;
-        if(isNaN(userId)) throw new TypeError("userId must be a number");
+        const user_id:number = req.body.user_id as number;
+        if(isNaN(user_id)) throw new TypeError("user_id must be a number");
         const password:string = req.body.password;
-        if(userId && password){
+        if(user_id && password){
             const userInstance = new User();
-            const user = await userInstance.authenticate(userId);
+            const user = await userInstance.authenticate(user_id);
             if(user){
                 const hashedPassword:string = user.password as string;
-                const token = jwt.sign({userId:userId}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+                const token = jwt.sign({user_id:user_id}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
                 bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)?
                     res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) :
                     res.status(400).json({status: 400, message: "Password is incorrect"});
