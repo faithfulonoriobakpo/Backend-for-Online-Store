@@ -1,5 +1,6 @@
 import { query } from "express";
 import Client from "../database";
+import { Product } from "./Products";
 
 type order = {
     id:number,
@@ -20,6 +21,7 @@ class Order{
         try{
             const conn = await Client.connect();
             const result = await conn.query("SELECT * FROM users WHERE id=$1",[user_id]);
+            conn.release();
             if(result.rowCount > 0) return true;
             return false;
         }catch(e){
@@ -32,6 +34,7 @@ class Order{
         try{
             const conn = await Client.connect();
             const result = await conn.query("SELECT * FROM order_items WHERE order_id=$1",[order_id]);
+            conn.release();
             if(result && result.rowCount > 0) return true;
             return false;
         }catch(e){
@@ -66,6 +69,7 @@ class Order{
         try{
             const conn = await Client.connect();
             const OrderIds = await conn.query("SELECT id FROM orders WHERE user_id=$1 AND status=$2",[user_id,type]);
+            conn.release();
             if(OrderIds.rowCount > 0){
                 let orders = await Promise.all(OrderIds.rows.map(async (item:order) => {
                 let order = await conn.query("SELECT * FROM order_items WHERE order_id=$1", [item.id]);
@@ -99,6 +103,7 @@ class Order{
     public async addProduct(product_id:number, order_id:number, price:number){
         try{
             if(await this.isOrderActive(order_id) != true) throw new TypeError("order does not exist or no longer active");
+            if(!(await new Product().productExists(product_id))) throw new TypeError(`product with id ${product_id} does not exist`);
             const conn = await Client.connect();
             const checkIfProductExistForOrderQuery = "SELECT * FROM order_items WHERE product_id=$1 AND order_id=$2";
             const checkIfProductExistForOrderQueryResult = await conn.query(checkIfProductExistForOrderQuery,[product_id,order_id]);
