@@ -69,7 +69,6 @@ class Order{
         try{
             const conn = await Client.connect();
             const OrderIds = await conn.query("SELECT id FROM orders WHERE user_id=$1 AND status=$2",[user_id,type]);
-            conn.release();
             if(OrderIds.rowCount > 0){
                 let orders = await Promise.all(OrderIds.rows.map(async (item:order) => {
                 let order = await conn.query("SELECT * FROM order_items WHERE order_id=$1", [item.id]);
@@ -78,6 +77,7 @@ class Order{
                 conn.release();
                 return orders.filter(item => item.length > 0 );
             }else{
+                conn.release();
                 return null;
             }
         }catch(e){
