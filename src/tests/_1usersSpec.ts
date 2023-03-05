@@ -16,12 +16,12 @@ describe("Test all user endpoints for correct data input", async () => {
     it("Expects user to be successfully created", async () => {
         const user = {firstname:"faithful",lastname:"onoriobakpo",password:"hashedPassword"};
         const response = await request.post('/api/users/create')
-                                      .set('Authorization', `Bearer ${token}`)
                                       .send(user);
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('User created successfully');
-        expect(response.body.data).toEqual(jasmine.objectContaining({
-            id:jasmine.any(Number)
+        expect(response.body).toEqual(jasmine.objectContaining({
+            id:jasmine.any(Number),
+            token:jasmine.any(String)
         }));
     });
 
@@ -57,18 +57,9 @@ describe("Test all user endpoints for error handling", async () => {
         token = res.body.token;
     });
 
-    it("Expects endpoint to return error with message 'Access Denied. No Token Provided.'", async () => {
-        const user = {firstname:"faithful",lastname:"onoriobakpo",password:"hashedPassword"};
-        const response = await request.post('/api/users/create')
-                                      .send(user);
-        expect(response.status).toBe(401);
-        expect(response.body.message).toBe('Access Denied. No Token Provided.');
-    });
-
     it("Expects endpoint to retun error with message firstname, lastname and password must be provided", async () => {
         const user = {firstname:"faithful",lastname:"onoriobakpo"};
         const response = await request.post('/api/users/create')
-                                      .set('Authorization', `Bearer ${token}`)
                                       .send(user);
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('firstname, lastname and password must be provided');
@@ -78,7 +69,7 @@ describe("Test all user endpoints for error handling", async () => {
         const response = await request.get('/api/users/show/one')
                                       .set('Authorization', `Bearer ${token}`);
         expect(response.status).toBe(400);
-        expect(response.body.message).toBe('User Id must be a number and cannot null.');
+        expect(response.body.message).toBe('User_id must be a number and cannot null.');
     });
 
     it("Expects endpoint to return error with message user with id 1200 does not exist", async () => {

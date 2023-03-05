@@ -78,10 +78,10 @@ describe("Test all product endpoints for error handling", async () => {
     });
 
     //product id not in database is provided to test endpoint
-    it("Expects response message for product show to be 'No product found for id given' when id not in db given", async () => {
+    it("Expects response message for product show to be 'product does not exist' when id not in db given", async () => {
         const response = await request.get('/api/products/show/245');
-        expect(response.status).toBe(404);
-        expect(response.body.message).toBe('No product found for id given');
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe(`product with id 245 does not exist`);
     });
 
     it("Expects response message for product show to be 'product id must be a number' when NaN given", async () => {
