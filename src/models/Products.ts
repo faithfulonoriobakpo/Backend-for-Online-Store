@@ -8,6 +8,20 @@ type product = {
 };
 
 class Product {
+
+    public async productExists(product_id:number):Promise<boolean>{
+        try{
+            const conn = await Client.connect();
+            const result = await conn.query("SELECT * FROM products WHERE id=$1", [product_id]);
+            conn.release();
+            if(result.rowCount > 0) return true;
+            return false;
+        }catch(e){
+            if(e instanceof Error) throw new Error(e.message);
+            throw new Error("Error occured checking if product exists");
+        }
+    }
+
     public async index(): Promise<product[]> {
         try {
             const conn = await Client.connect();
@@ -22,12 +36,14 @@ class Product {
 
     public async show(id: number): Promise<product> {
         try {
+            if(!(await this.productExists(id))) throw new TypeError(`product with id ${id} does not exist`);
             const conn = await Client.connect();
             const query = 'SELECT * FROM products WHERE id=$1';
             const result = await conn.query(query, [id]);
             conn.release();
             return result.rows[0];
         } catch (e) {
+            if (e instanceof TypeError) throw new TypeError(e.message);
             throw Error('Could not find product');
         }
     }
