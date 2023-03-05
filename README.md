@@ -185,6 +185,15 @@ URL: /api/orders/completedorders/:user_id
 
 ```
 
+- Delete Order by order id (args: order id)[token required]
+
+```
+Method: DELETE
+
+URL: /api/orders/delete/:order_id
+
+```
+
 ### Products
 
 - Index
