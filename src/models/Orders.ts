@@ -1,43 +1,175 @@
+import { query } from "express";
 import Client from "../database";
 
 type order = {
     id:number,
-    id_of_products: number[],
-    quantity_of_each_product: number[],
     user_id: number,
     status?:string
 };
 
+type orders = {
+    id:number,
+    product_id:number,
+    quantity:number,
+    price:number
+};
+
 class Order{
-    public async createOrder(order:order): Promise<order>{
+
+    private async userExists(user_id:number):Promise<boolean>{
         try{
             const conn = await Client.connect();
-            const query = "INSERT INTO orders(id_of_products,quantity_of_each_product,user_id,status) VALUES($1,$2,$3,$4) RETURNING *";
-            const createdorder = await conn.query(query, [order.id_of_products,order.quantity_of_each_product,order.user_id,"active"]);
-            conn.release();
-            return createdorder.rows[0];
+            const result = await conn.query("SELECT * FROM users WHERE id=$1",[user_id]);
+            if(result.rowCount > 0) return true;
+            return false;
         }catch(e){
-            throw new Error("Could not create order(dbError)");
+            if(e instanceof Error) throw new Error(e.message);
+            throw new Error('Error occurred while confirming if user exists');
         }
     }
 
-    public async completeOrder(orderId:number): Promise<order>{
+    private async orderNotEmpty(order_id:number):Promise<boolean>{
+        try{
+            const conn = await Client.connect();
+            const result = await conn.query("SELECT * FROM order_items WHERE order_id=$1",[order_id]);
+            if(result && result.rowCount > 0) return true;
+            return false;
+        }catch(e){
+            if(e instanceof Error) throw new Error(e.message);
+            throw new Error("Error occurred while confirming if order is empty");
+        }
+    }
+
+    private async isOrderActive(order_id:number):Promise<boolean>{
         try{
             const conn = await Client.connect();
             const checkQuery = "SELECT status FROM orders WHERE id=$1";
-            const result = await conn.query(checkQuery, [orderId]);
-            const status = result.rows[0].status;
-            if(status){
-                if(status != 'active'){
+            const result = await conn.query(checkQuery, [order_id]);
+            if(result.rowCount > 0){
+                const status = result.rows[0].status;
+                if(status && status == 'active'){
                     conn.release();
-                    throw new TypeError("order is no longer active!");
+                    return true;
                 }
-            }else{
                 conn.release();
-                throw new Error("could not find order");
+                return false;
             }
+            conn.release();
+            return false;
+        }catch(e){
+            if(e instanceof Error) throw new Error(e.message);
+            throw new Error('Error occurred while confirming if order is active');
+        }
+    }
+
+    private async fetchOrders(user_id:number,type:string){
+        try{
+            const conn = await Client.connect();
+            const OrderIds = await conn.query("SELECT id FROM orders WHERE user_id=$1 AND status=$2",[user_id,type]);
+            if(OrderIds.rowCount > 0){
+                let orders = await Promise.all(OrderIds.rows.map(async (item:order) => {
+                let order = await conn.query("SELECT * FROM order_items WHERE order_id=$1", [item.id]);
+                return order.rows;
+                }));
+                conn.release();
+                return orders.filter(item => item.length > 0 );
+            }else{
+                return null;
+            }
+        }catch(e){
+            if(e instanceof Error) throw new Error(e.message);
+            throw new Error('Error occurred while fetching orders');
+        }
+    }
+
+    public async createOrder(user_id:number): Promise<order>{
+        try{
+            if(!(await this.userExists(user_id))) throw new TypeError(`user with id ${user_id} does not exist!`);
+            const conn = await Client.connect();
+            const query = "INSERT INTO orders(user_id,status) VALUES($1,$2) RETURNING id";
+            const createdorder = await conn.query(query, [user_id,"active"]);
+            conn.release();
+            return createdorder.rows[0];
+        }catch(e){
+            if(e instanceof TypeError) throw new TypeError(e.message);
+            throw new Error("Could not create order");
+        }
+    }
+
+    public async addProduct(product_id:number, order_id:number, price:number){
+        try{
+            if(await this.isOrderActive(order_id) != true) throw new TypeError("order does not exist or no longer active");
+            const conn = await Client.connect();
+            const checkIfProductExistForOrderQuery = "SELECT * FROM order_items WHERE product_id=$1 AND order_id=$2";
+            const checkIfProductExistForOrderQueryResult = await conn.query(checkIfProductExistForOrderQuery,[product_id,order_id]);
+            if(checkIfProductExistForOrderQueryResult.rowCount > 0){
+                const result = await conn.query(`UPDATE order_items SET quantity=$1,price=$2 WHERE product_id=$3 AND order_id=$4 RETURNING *`,
+                                [(checkIfProductExistForOrderQueryResult.rows[0].quantity + 1),(checkIfProductExistForOrderQueryResult.rows[0].quantity
+                                + 1)*price,product_id,order_id]);
+                conn.release();
+                return {
+                    message:"product increased successfully",
+                    data:result.rows[0]
+                };
+            }else{
+                const result = await conn.query("INSERT INTO order_items(order_id,product_id,price,quantity) VALUES($1,$2,$3,$4)",
+                                [order_id,product_id,price,1]);
+                conn.release();
+                return {
+                    message:"product added successfully",
+                    data:result.rows[0]
+                };
+            }
+        }catch(e){
+            if(e instanceof TypeError){
+                throw new TypeError(e.message)
+            }else if(e instanceof Error){
+                throw new Error(e.message);
+            }
+        }
+    }
+
+    public async removeProduct(product_id:number, order_id:number, price:number){
+        try{
+            if(await this.isOrderActive(order_id) != true) throw new TypeError("order does not exist or no longer active");
+            const conn = await Client.connect();
+            const checkIfProductExistForOrderQuery = await conn.query("SELECT * FROM order_items WHERE product_id=$1 AND order_id=$2",
+                                                                        [product_id,order_id]);
+            if(checkIfProductExistForOrderQuery.rowCount > 0 && checkIfProductExistForOrderQuery.rows[0].quantity > 1){
+                const result = await conn.query(`UPDATE order_items SET quantity=$1,price=$2 WHERE product_id=$3 AND order_id=$4 RETURNING *`,
+                                [(checkIfProductExistForOrderQuery.rows[0].quantity - 1),(checkIfProductExistForOrderQuery.rows[0].quantity
+                                - 1)*price,product_id,order_id]);
+                conn.release();
+                return {
+                    message:"product reduced successfully",
+                    data:result.rows[0]
+                };
+            }else if(checkIfProductExistForOrderQuery.rowCount > 0 && checkIfProductExistForOrderQuery.rows[0].quantity == 1){
+                await conn.query("DELETE FROM order_items WHERE id=$1",[checkIfProductExistForOrderQuery.rows[0].id]);
+                conn.release();
+                return {
+                    message:"product removed successfully",
+                    data:null
+                }
+            }
+            conn.release();
+            throw new TypeError("product is not part or no longer part of order");
+        }catch(e){
+            if(e instanceof TypeError){
+                throw new TypeError(e.message)
+            }else if(e instanceof Error){
+                throw new Error(e.message);
+            }
+        }
+    }
+
+    public async completeOrder(order_id:number): Promise<order>{
+        try{
+            if(await this.isOrderActive(order_id) != true) throw new TypeError('order does not exist or no longer active');
+            if(await this.orderNotEmpty(order_id) != true) throw new TypeError('order is empty! Please cancel order instead.');
+            const conn = await Client.connect();
             const query = "UPDATE orders SET status='completed' WHERE id=$1 RETURNING *";
-            const completedorder = await conn.query(query, [orderId]);
+            const completedorder = await conn.query(query, [order_id]);
             conn.release();
             return completedorder.rows[0];
         }catch(e){
@@ -49,23 +181,14 @@ class Order{
         }
     }
 
-    public async cancelOrder(orderId:number): Promise<order>{
+    public async cancelOrder(order_id:number): Promise<order>{
         try{
-            const conn = await Client.connect();
-            const checkQuery = "SELECT status FROM orders WHERE id=$1";
-            const result = await conn.query(checkQuery, [orderId]);
-            const status = result.rows[0].status;
-            if(status){
-                if(status != 'active'){
-                    conn.release();
-                    throw new TypeError("order is no longer active!");
-                }
-            }else{
-                conn.release();
-                throw new Error("could not find order");
+            if(await this.isOrderActive(order_id) != true){
+                throw new TypeError('order does not exist or no longer active');
             }
+            const conn = await Client.connect();
             const query = "UPDATE orders SET status='canceled' WHERE id=$1 AND status='active' RETURNING *";
-            const canceledorder = await conn.query(query, [orderId]);
+            const canceledorder = await conn.query(query, [order_id]);
             conn.release();
             return canceledorder.rows[0];
         }catch(e){
@@ -77,43 +200,56 @@ class Order{
         }
     }
 
-    public async currentOrders(userId:number): Promise<order[]>{
+    public async deleteOrder(order_id:number):Promise<order>{
         try{
+            if(await this.isOrderActive(order_id) != true) throw new TypeError("order does not exist or no longer active");
             const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE user_id=$1 AND status='active'";
-            const currentorders = await conn.query(query, [userId]);
+            await conn.query("DELETE FROM order_items WHERE order_id=$1",[order_id]);
+            const deletedOrder = await conn.query("DELETE FROM orders WHERE id=$1 RETURNING id,user_id",[order_id]);
             conn.release();
-            return currentorders.rows;
+            return deletedOrder.rows[0];
         }catch(e){
-            throw new Error("Could not get current orders for user");
-        }
-    }
-
-    public async completedOrders(userId:number): Promise<order[]>{
-        try{
-            const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE user_id=$1 AND status='completed'";
-            const completedorders = await conn.query(query, [userId]);
-            conn.release();
-            return completedorders.rows;
-        }catch(e){
-            if(e instanceof Error){
-                throw new Error(e.message);
+            if(e instanceof TypeError){
+                throw new TypeError(e.message);
             }else{
-                throw new Error("Could not get completed orders for user");
+                throw new Error("Unxpected Error " + e);
             }
         }
     }
 
-    public async canceledOrders(userId:number): Promise<order[]> {
+    public async currentOrders(user_id:number): Promise<orders[][]|null>{
         try{
-            const conn = await Client.connect();
-            const query = "SELECT * FROM orders WHERE user_id=$1 AND status='canceled'";
-            const canceledorders = await conn.query(query, [userId]);
-            conn.release();
-            return canceledorders.rows;
+            return this.fetchOrders(user_id,'active');
         }catch(e){
-            throw new Error("Could not get canceled orders for user");
+            if(e instanceof Error){
+                throw new Error(e.message);
+            }else{
+                throw new Error("could not fetch orders");
+            }
+        }
+    }
+
+    public async completedOrders(user_id:number): Promise<orders[][]|null>{
+        try{
+            return this.fetchOrders(user_id,'completed');
+        }catch(e){
+            if(e instanceof Error){
+                throw new Error(e.message);
+            }else{
+                throw new Error("could not fetch orders");
+            }
+        }
+    }
+
+    public async canceledOrders(user_id:number): Promise<orders[][]|null> {
+        try{
+            return this.fetchOrders(user_id,'canceled');
+        }catch(e){
+            if(e instanceof Error){
+                throw new Error(e.message);
+            }else{
+                throw new Error("could not fetch orders");
+            }
         }
     }
 }
