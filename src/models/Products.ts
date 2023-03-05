@@ -20,11 +20,11 @@ class Product {
         }
     }
 
-    public async show(index: number): Promise<product> {
+    public async show(id: number): Promise<product> {
         try {
             const conn = await Client.connect();
             const query = 'SELECT * FROM products WHERE id=$1';
-            const result = await conn.query(query, [index]);
+            const result = await conn.query(query, [id]);
             conn.release();
             return result.rows[0];
         } catch (e) {
@@ -36,12 +36,11 @@ class Product {
         try {
             const conn = await Client.connect();
             const query =
-                'INSERT INTO products(name,price,category,orders_count) VALUES($1,$2,$3,$4) RETURNING id';
+                'INSERT INTO products(name,price,category) VALUES($1,$2,$3) RETURNING id';
             const result = await conn.query(query, [
                 product.name,
                 product.price,
-                product.category,
-                0
+                product.category
             ]);
             conn.release();
             return result.rows[0];
@@ -65,7 +64,11 @@ class Product {
     public async most_popular_products(): Promise<product[]> {
         try {
             const conn = await Client.connect();
-            const query = `SELECT * FROM products ORDER BY orders_count DESC LIMIT 5`;
+            const query = `WITH popular_products AS 
+                                (SELECT product_id, COUNT(quantity) as count FROM order_items 
+                                GROUP BY product_id ORDER BY count DESC LIMIT 5)
+                            SELECT products.id, products.name, products.price, products.category
+                            FROM products JOIN popular_products ON products.id = popular_products.product_id`;
             const result = await conn.query(query);
             conn.release();
             return result.rows;
@@ -75,4 +78,4 @@ class Product {
     }
 }
 
-export default Product;
+export {product, Product};
