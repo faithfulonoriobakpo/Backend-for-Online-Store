@@ -137,6 +137,37 @@ Response Sample: {
 
 #### Orders
 
+- Add Product to Order [token required]
+
+```
+Method: PUT
+
+URL: /api/orders/addproduct
+
+Payload: {
+  product_id:integer,
+  order_id:integer,
+  price:integer
+}
+
+```
+
+- Remove Product from Order by user [token required]
+
+```
+Method: DELETE
+
+URL: /api/orders/removeproduct
+
+Payload: {
+  product_id:integer,
+  order_id:integer,
+  price:integer
+}
+
+```
+
+
 - Current Order by user (args: user id)[token required]
 
 ```
