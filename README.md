@@ -51,7 +51,7 @@ To run this application, you to
 
 ## Endpoints
 
-All endpoints are available in the <a href="../REQUIREMENTS.md">REQUIREMENTS.md</a> file.
+All endpoints are available in the <a href="https://github.com/faithfulonoriobakpo/Backend-for-Online-Store/blob/main/REQUIREMENTS.md">REQUIREMENTS.md</a> file.
 
 ## Testing
 
