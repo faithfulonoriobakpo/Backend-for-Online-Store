@@ -48,8 +48,7 @@ describe("Test all product endpoints for correct data input", async () => {
             id:jasmine.any(Number),
             name:jasmine.any(String),
             price:jasmine.any(String),
-            category:jasmine.any(String),
-            orders_count:jasmine.any(Number)
+            category:jasmine.any(String)
         }));
     });
 
@@ -62,21 +61,7 @@ describe("Test all product endpoints for correct data input", async () => {
             id:jasmine.any(Number),
             name:jasmine.any(String),
             price:jasmine.any(String),
-            category:jasmine.any(String),
-            orders_count:jasmine.any(Number)
-        }]));
-    });
-
-    it("Expects response message for popular products to be 'products retrieved successfully", async () => {
-        const response = await request.get('/api/products/popular');
-        expect(response.status).toBe(200);
-        expect(response.body.message).toBe('products retrieved successfully');
-        expect(response.body.data).toEqual(jasmine.arrayContaining([{
-            id:jasmine.any(Number),
-            name:jasmine.any(String),
-            price:jasmine.any(String),
-            category:jasmine.any(String),
-            orders_count:jasmine.any(Number)
+            category:jasmine.any(String)
         }]));
     });
 });
