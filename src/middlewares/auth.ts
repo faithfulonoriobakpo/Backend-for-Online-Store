@@ -10,11 +10,13 @@ export const authenticate = (req:Request, res:Response, next:NextFunction) => {
     if (!token) {
       return res.status(401).json({status:401, message:"Access Denied. No Token Provided."});
     }
-  
     try {
       jwt.verify(token, process.env.JWT_SECRET as string);
       next();
-    } catch (ex) {
+    } catch (e) {
+      if(e instanceof Error){
+        return res.status(401).json({status:401, message:"Access Denied. Invalid Token Provided.", error:e.message});
+      }
       return res.status(401).json({status:401, message:"Access Denied. Invalid Token Provided."});
     }
 };
