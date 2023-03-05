@@ -65,7 +65,7 @@ userRouter.post('/create', async (req:Request, res:Response) => {
         const userInstance = new User();
         const result = await userInstance.create(user);
         if(result){
-            const token = jwt.sign({user_id:result.id}, process.env.JWT_SECRET as string, { expiresIn: '1h' })
+            const token = jwt.sign({user_id:result.id}, process.env.JWT_SECRET as string)
             res.status(200).json({
                 "message":"User created successfully",
                 "id":result.id,
@@ -96,7 +96,7 @@ userRouter.post('/authenticate', async (req:Request,res:Response) => {
             const user = await userInstance.authenticate(user_id);
             if(user){
                 const hashedPassword:string = user.password as string;
-                const token = jwt.sign({user_id:user_id}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+                const token = jwt.sign({user_id:user_id}, process.env.JWT_SECRET as string);
                 bcrypt.compareSync(password + process.env.PEPPER, hashedPassword)?
                     res.status(200).json({status: 200, message: "User authenticated successfully", token:token}) :
                     res.status(400).json({status: 400, message: "Password is incorrect"});
