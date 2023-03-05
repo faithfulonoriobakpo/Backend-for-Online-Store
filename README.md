@@ -78,7 +78,7 @@ All authentications use bearer token, which can be passed in the header, using a
 
 ### Users
 
-- Create [token required]
+- Create User
 
 ```
   Method: POST
@@ -93,9 +93,27 @@ All authentications use bearer token, which can be passed in the header, using a
 
   Response Sample: {
                       "message": "User created successfully",
-                      "data": {
-                          "id":integer
-                      }
+                      "id":integer,
+                      "token":string 
+                    }
+```
+
+- Authenticate User
+
+```
+  Method: POST
+
+  URL: /api/users/authenticate
+
+  Payload: {
+              "id":integer,
+              "password":string
+            }
+
+  Response Sample: {
+                      "message": "User created successfully",
+                      "id":integer,
+                      "token":string 
                     }
 ```
 
