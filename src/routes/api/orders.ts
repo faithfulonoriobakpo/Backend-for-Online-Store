@@ -6,38 +6,102 @@ const orderRouter = express.Router();
 
 orderRouter.post('/create', authenticate, async (req:Request,res:Response) => {
     try{
-        const order:order = req.body.order;
-        if(!(order && order.id_of_products && order.quantity_of_each_product && order.user_id)){
-            throw new TypeError("All parameters must have valid values");
-        }
-        if(!(Array.isArray(order.id_of_products) && Array.isArray(order.quantity_of_each_product) && Number.isInteger(order.user_id))){
-            throw new TypeError("user_id must be a number, id of products and quantity of products must be arrays");
+        const user_id = req.body.user_id;
+        if(!(user_id && Number.isInteger(user_id))){
+            throw new TypeError("user_id must be a number and cannot be null");
         }
         const orderInstance = new Order();
-        const createdOrder = await orderInstance.createOrder(order);
+        const createdOrder = await orderInstance.createOrder(user_id);
         if(createdOrder){
             res.status(200).json({
                 message:"order created successfully",
                 data:createdOrder
             });
         }else{
-            throw new Error("could not create user");
+            throw new Error("could not create order");
         }
     }catch(e){
         if(e instanceof TypeError){
             res.status(400).json({status:400, message: e.message});
         }else if(e instanceof Error){
-            res.json({message: e.message?? "Could not create order"});
+            res.status(500).json({status:500, message: e.message?? "Could not create order"});
         }
     }
 });
 
-orderRouter.put('/complete/:orderId', authenticate, async (req:Request,res:Response) => {
+orderRouter.delete('/delete/:order_id', authenticate, async (req:Request,res:Response) => {
     try{
-        const orderId = Number(req.params.orderId);
-        if(!(orderId && !isNaN(orderId))) throw new TypeError("orderId must be a number and cannot be null");
+        const order_id = Number(req.params.order_id);
+        if(!(order_id && Number.isInteger(order_id))){
+            throw new TypeError("order_id must be a number and cannot be null");
+        }
         const orderInstance = new Order();
-        const completedOrder = await orderInstance.completeOrder(orderId); 
+        const deletedOrder = await orderInstance.deleteOrder(order_id);
+        if(deletedOrder){
+            res.status(200).json({
+                message:"order deleted successfully",
+                data:deletedOrder
+            });
+        }else{
+            throw new Error("could not delete order");
+        }
+    }catch(e){
+        if(e instanceof TypeError){
+            res.status(400).json({status:400, message: e.message});
+        }else if(e instanceof Error){
+            res.status(500).json({status:500, message: e.message?? "Could not create order"});
+        }
+    }
+});
+
+orderRouter.put('/addproduct', authenticate, async (req:Request,res:Response) => {
+    try{
+        const {product_id, order_id, price} = req.body;
+        if(!(product_id && order_id && price)) throw new TypeError("product_id, order_id or price cannot be null");
+        if(isNaN(product_id || isNaN(order_id) || isNaN(price))) throw new TypeError("product_id, order_id and price must be numbers");
+        const orderInstance = new Order();
+        const addedProduct = await orderInstance.addProduct(product_id,order_id,price);
+        if(addedProduct){
+            res.status(200).json(addedProduct);
+        }else{
+            throw new Error("Internal server error");
+        }
+    }catch(e){
+        if(e instanceof TypeError){
+            res.status(400).json({message: e.message});
+        }else if(e instanceof Error){
+            res.status(500).json({message: e.message ?? "Could not add product"});
+        }
+    }
+});
+
+orderRouter.delete('/removeproduct', authenticate, async (req:Request,res:Response) => {
+    try{
+        const {product_id, order_id, price} = req.body;
+        if(!(product_id && order_id && price)) throw new TypeError("product_id, order_id or price cannot be null");
+        if(isNaN(product_id || isNaN(order_id) || isNaN(price))) throw new TypeError("product_id, order_id and price must be numbers");
+        const orderInstance = new Order();
+        const removedProduct = await orderInstance.removeProduct(product_id,order_id,price);
+        if(removedProduct){
+            res.status(200).json(removedProduct);
+        }else{
+            throw new Error("Internal server error");
+        }
+    }catch(e){
+        if(e instanceof TypeError){
+            res.status(400).json({message: e.message});
+        }else if(e instanceof Error){
+            res.status(500).json({message: e.message ?? "Could not remove product"});
+        }
+    }
+});
+
+orderRouter.patch('/complete/:order_id', authenticate, async (req:Request,res:Response) => {
+    try{
+        const order_id = Number(req.params.order_id);
+        if(!(order_id && !isNaN(order_id))) throw new TypeError("order_id must be a number and cannot be null");
+        const orderInstance = new Order();
+        const completedOrder = await orderInstance.completeOrder(order_id); 
         res.status(200).json({
             message:"order completed successfully",
             data:completedOrder
@@ -46,17 +110,17 @@ orderRouter.put('/complete/:orderId', authenticate, async (req:Request,res:Respo
         if(e instanceof TypeError){
             res.status(400).json({message: e.message});
         }else if(e instanceof Error){
-            res.json({message: e.message ?? "Could not complete order"});
+            res.status(500).json({message: e.message ?? "Could not complete order"});
         }
     }
 });
 
-orderRouter.put('/cancel/:orderId', authenticate, async (req:Request,res:Response) => {
+orderRouter.patch('/cancel/:order_id', authenticate, async (req:Request,res:Response) => {
     try{
-        const orderId = Number(req.params.orderId);
-        if(!(orderId && !isNaN(orderId))) throw new TypeError("orderId must be a number and cannot be null");
+        const order_id = Number(req.params.order_id);
+        if(!(order_id && !isNaN(order_id))) throw new TypeError("order_id must be a number and cannot be null");
         const orderInstance = new Order();
-        const canceledOrder = await orderInstance.cancelOrder(orderId); 
+        const canceledOrder = await orderInstance.cancelOrder(order_id); 
         res.status(200).json({
             message:"order canceled successfully",
             data:canceledOrder
@@ -73,17 +137,17 @@ orderRouter.put('/cancel/:orderId', authenticate, async (req:Request,res:Respons
 orderRouter.get('/currentorders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
-        if(!(userId && !isNaN(userId))) throw new TypeError("userId must be a number and cannot be null");
+        if(!(userId && !isNaN(userId))) throw new TypeError("user_id must be a number and cannot be null");
         const orderInstance = new Order();
         const result = await orderInstance.currentOrders(userId);
-        if(result.length > 0){
+        if(result && result.length > 0){
             res.status(200).json({
                 message: "current orders fetched successfully",
                 data: result
             });
-        }else{
+        }else {
             res.status(200).json({
-                message: "no active order was found for user",
+                message: "no active order with products was found for user",
                 data: result
             });
         }
@@ -99,10 +163,10 @@ orderRouter.get('/currentorders/:userId', authenticate, async (req:Request, res:
 orderRouter.get('/completedorders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
-        if(!(userId && !isNaN(userId))) throw new TypeError("userId must be a number and cannot be null");
+        if(!(userId && !isNaN(userId))) throw new TypeError("user_id must be a number and cannot be null");
         const orderInstance = new Order();
         const result = await orderInstance.completedOrders(userId);
-        if(result.length > 0){
+        if(result && result.length > 0){
             res.status(200).json({
                 message: "completed orders fetched successfully",
                 data: result
@@ -125,10 +189,10 @@ orderRouter.get('/completedorders/:userId', authenticate, async (req:Request, re
 orderRouter.get('/canceledorders/:userId', authenticate, async (req:Request, res:Response) => {
     try{
         const userId = Number(req.params.userId);
-        if(!(userId && !isNaN(userId))) throw new TypeError("userId must be a number and cannot be null");
+        if(!(userId && !isNaN(userId))) throw new TypeError("user_id must be a number and cannot be null");
         const orderInstance = new Order();
         const result = await orderInstance.canceledOrders(userId);
-        if(result.length > 0 ){
+        if(result && result.length > 0 ){
             res.status(200).json({
                 message: "canceled orders fetched successfully",
                 data: result
