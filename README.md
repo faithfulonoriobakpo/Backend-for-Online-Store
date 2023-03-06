@@ -58,6 +58,7 @@ Database Name for test: my-online-store-test
 ### Tables and Data Shapes
 
 **user**
+```
                                      Table "public.users"
   Column   |          Type          | Collation | Nullable |              Default              
 -----------+------------------------+-----------+----------+-----------------------------------
@@ -69,10 +70,11 @@ Indexes:
     "users_pkey" PRIMARY KEY, btree (id)
 Referenced by:
     TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-
+```
 
 **products**
-                                    Table "public.products"
+``` 
+                                   Table "public.products"
   Column  |         Type          | Collation | Nullable |               Default                
 ----------+-----------------------+-----------+----------+--------------------------------------
  id       | integer               |           | not null | nextval('products_id_seq'::regclass)
@@ -83,9 +85,11 @@ Indexes:
     "products_pkey" PRIMARY KEY, btree (id)
 Referenced by:
     TABLE "order_items" CONSTRAINT "order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+```
 
 
 **orders**
+```
                                     Table "public.orders"
  Column  |         Type          | Collation | Nullable |              Default               
 ---------+-----------------------+-----------+----------+------------------------------------
@@ -98,6 +102,7 @@ Foreign-key constraints:
     "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 Referenced by:
     TABLE "order_items" CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+```
 
 
 ## API Endpoints
