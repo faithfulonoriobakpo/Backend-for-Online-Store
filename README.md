@@ -6,7 +6,7 @@ This repo contains a basic Node and Express app for the backend of an store.
 
 This application makes use of the following libraries:
 
-- Postgres for the database
+- pg for the database
 - Node/Express for the application logic
 - dotenv from npm for managing environment variables
 - db-migrate from npm for migrations
@@ -47,6 +47,57 @@ To run this application, you to
   > Feel free to change SALT_ROUND, PEPPER, JWT_SECRET, AUTH_USERNAME=authtoken, AUTH_PASSWORD to values of your choice.
 
 - From a different terminal, run the command 'npm run watch' to run the application locally on 127.0.0.1:3000.
+
+## Database
+
+The application uses a postgres database running on port 5432.
+
+Database Name for dev: my-online-store
+Database Name for test: my-online-store-test
+
+### Tables and Data Shapes
+
+**user**
+                                     Table "public.users"
+  Column   |          Type          | Collation | Nullable |              Default              
+-----------+------------------------+-----------+----------+-----------------------------------
+ id        | integer                |           | not null | nextval('users_id_seq'::regclass)
+ firstname | character varying(20)  |           |          | 
+ lastname  | character varying(25)  |           |          | 
+ password  | character varying(100) |           |          | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+
+
+**products**
+                                    Table "public.products"
+  Column  |         Type          | Collation | Nullable |               Default                
+----------+-----------------------+-----------+----------+--------------------------------------
+ id       | integer               |           | not null | nextval('products_id_seq'::regclass)
+ name     | character varying(50) |           |          | 
+ price    | bigint                |           |          | 
+ category | character varying(30) |           |          | 
+Indexes:
+    "products_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "order_items" CONSTRAINT "order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+
+
+**orders**
+                                    Table "public.orders"
+ Column  |         Type          | Collation | Nullable |              Default               
+---------+-----------------------+-----------+----------+------------------------------------
+ id      | integer               |           | not null | nextval('orders_id_seq'::regclass)
+ user_id | integer               |           |          | 
+ status  | character varying(12) |           |          | 
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Referenced by:
+    TABLE "order_items" CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 
 
 ## API Endpoints
