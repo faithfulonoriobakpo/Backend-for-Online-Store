@@ -57,7 +57,7 @@ Database Name for test: my-online-store-test
 
 ### Tables and Data Shapes
 
-**user**
+**users**
 ```
                                      Table "public.users"
   Column   |          Type          | Collation | Nullable |              Default              
