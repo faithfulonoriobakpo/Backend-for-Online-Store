@@ -226,7 +226,7 @@ Payload: {
 
 ```
 
-- Remove Product from Order by user [token required]
+- Remove Product from Order [token required]
 
 ```
 Method: DELETE
