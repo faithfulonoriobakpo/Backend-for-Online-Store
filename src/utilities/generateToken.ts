@@ -12,10 +12,10 @@ tokenRouter.post('/generatetoken', async (req:Request,res:Response) => {
                 const token = jwt.sign({username:username}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
                 res.status(200).json({message:"token generated successfully",token:token});
             }else{
-                res.status(400).json({status:400,error:"incorrect username or password"});
+                res.status(401).json({status:401,error:"incorrect username or password"});
             }
         }else{
-            res.status(400).json({status:400,error:"username and password required to generate token"});
+            res.status(401).json({status:401,error:"username and password required to generate token"});
         }
     }catch(e){
         if(e instanceof Error){
