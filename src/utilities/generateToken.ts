@@ -12,14 +12,14 @@ tokenRouter.post('/generatetoken', async (req:Request,res:Response) => {
                 const token = jwt.sign({username:username}, process.env.JWT_SECRET as string, { expiresIn: '1h' });
                 res.status(200).json({message:"token generated successfully",token:token});
             }else{
-                res.status(401).json({status:401,error:"incorrect username or password"});
+                throw new Error('username and password required to generate token');
             }
         }else{
-            res.status(401).json({status:401,error:"username and password required to generate token"});
+            throw new Error('username and password required to generate token');
         }
     }catch(e){
-        if(e instanceof Error){
-            e.message? res.json({error: e.message}):res.json({"error":"An error occurred while getting token"});
+        if(e instanceof Error && e.message){
+            res.status(401).json({error: e.message});
         }else{
             res.json({"error":"An error occurred while getting token"});
         }
